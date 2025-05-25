@@ -4,12 +4,25 @@ const Home = () => {
   return (
    
       <Section>
-        <h1 style={{zIndex: 2}}>Optez pour l'excellence en VTC</h1>
-        <p>Service professionnel de transport sur réservation</p>
+        <H1>Optez pour l'excellence en VTC</H1>
+        <P>"Voyagez en toute sérénité avec notre service VTC 
+          haut de gamme : ponctualité, disponibilité, 
+          confort et sécurité sont nos maîtres-mots. 
+          Votre satisfaction est notre priorité."</P>
       </Section>
   
   )
 }
+
+const H1 = styled.h1`
+  z-index: 2;
+`
+
+const P = styled.p`
+  z-index: 2;
+  letter-spacing: 0.09rem;
+  max-width: 500px;
+`
 
 const Section = styled.section`
   position: relative;
@@ -18,6 +31,8 @@ const Section = styled.section`
   width: 100%;
   height: 100vh;
   margin: 0 auto;
+  padding: 0 30px;
+  text-align: center;
   background-image: url(${backgroundIMG});
   background-size: cover;
   background-position: center;
