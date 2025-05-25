@@ -23,7 +23,11 @@ const Home = () => {
 }
 
 const H2 = styled.h2`
+  margin-top: 100px;
   z-index: 2;
+  @media (max-width: 480px) {
+    margin-top: 200px;
+  }
 `
 
 const P = styled.p`

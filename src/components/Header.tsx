@@ -22,7 +22,7 @@ const HeaderContainer = styled.header`
 `;
 
 const Logo = styled.img`
-  height: 50px; /* Ajuste selon ton logo */
+  height: 75px; /* Ajuste selon ton logo */
 `;
 
 const Nav = styled.nav`
@@ -89,7 +89,7 @@ function Header() {
   return (
     <HeaderContainer>
       <RouterNavLink to="/">
-        <Logo src="/rnLogo.png" alt="Logo" style={{ height: '100px' }} />
+        <Logo src="/rnLogo.png" alt="Logo" />
       </RouterNavLink>
       
       <Nav>
