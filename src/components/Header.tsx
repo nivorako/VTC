@@ -3,6 +3,7 @@ import { theme } from "../styles/theme";
 import styled from "styled-components";
 import { NavLink as RouterNavLink } from "react-router-dom";
 import {FaBars} from "react-icons/fa6";
+import { RxCross2 } from "react-icons/rx";
 
 const HeaderContainer = styled.header`
   position: sticky;
@@ -59,16 +60,24 @@ const MenuIcon = styled(FaBars)`
 const MobileMenu = styled.nav`
   display: none;
   @media (max-width: 768px) {
+    width: 80%;
+    height: 90vh;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 50px;
     position: absolute;
-    top: 60px;
+    top: 20px;
     right: 0;
     background: ${theme.colors.background};
-    padding: 15px;
+    padding: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   }
+`;
+
+const CrossIcon = styled(RxCross2)`
+  color: white;
+  cursor: pointer;
+  font-size: 32px;
 `;
 
 function Header() {
@@ -89,7 +98,16 @@ function Header() {
         <StyledNavLink to="/mentions">Mentions</StyledNavLink>
       </Nav>
       <MenuIcon onClick={handleClick}/>
+      {isOpen && (
+      <MobileMenu>
+        <CrossIcon onClick={handleClick}/>
+        <StyledNavLink to="/contact">Contact</StyledNavLink>
+        <StyledNavLink to="/services">Services</StyledNavLink>
+        <StyledNavLink to="/mentions">Mentions</StyledNavLink>
+      </MobileMenu>
+      )}
     </HeaderContainer>
+    
   );
 }
 
