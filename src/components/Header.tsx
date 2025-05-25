@@ -101,9 +101,9 @@ function Header() {
       {isOpen && (
       <MobileMenu>
         <CrossIcon onClick={handleClick}/>
-        <StyledNavLink to="/contact">Contact</StyledNavLink>
-        <StyledNavLink to="/services">Services</StyledNavLink>
-        <StyledNavLink to="/mentions">Mentions</StyledNavLink>
+        <StyledNavLink to="/contact" onClick={handleClick}>Contact</StyledNavLink>
+        <StyledNavLink to="/services" onClick={handleClick}>Services</StyledNavLink>
+        <StyledNavLink to="/mentions" onClick={handleClick}>Mentions</StyledNavLink>
       </MobileMenu>
       )}
     </HeaderContainer>

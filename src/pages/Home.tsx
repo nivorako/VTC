@@ -1,20 +1,28 @@
 import styled from "styled-components";
 import backgroundIMG from "../assets/voiture.webp";
+import { theme } from "../styles/theme";
 const Home = () => {
   return (
    
       <Section>
-        <H1>Optez pour l'excellence en VTC</H1>
+        <H2>Optez pour l'excellence en VTC</H2>
         <P>"Voyagez en toute sérénité avec notre service VTC 
           haut de gamme : ponctualité, disponibilité, 
           confort et sécurité sont nos maîtres-mots. 
           Votre satisfaction est notre priorité."</P>
+        <Span1>
+          Reservez un VTC par téléphone 24h/24 7j/7
+        </Span1>
+        <Span2>
+          06 00 08 00 00
+        </Span2>
+        <BookingBTN>Reservez votre VTC</BookingBTN>
       </Section>
   
   )
 }
 
-const H1 = styled.h1`
+const H2 = styled.h2`
   z-index: 2;
 `
 
@@ -40,6 +48,7 @@ const Section = styled.section`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 2rem;
   color: white;
   margin-top: -150px;
   &::before {
@@ -54,4 +63,32 @@ const Section = styled.section`
   }
 `
 
+const Span1 = styled.span`
+  color: ${theme.colors.secondary};
+  font-size: 1.5rem;
+  font-weight: bold;
+  z-index: 2;
+`
+
+const Span2 = styled.span`
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  z-index: 2;
+`
+
+const BookingBTN = styled.button`
+  background: ${theme.colors.secondary};
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  z-index: 2;
+  font-weight: bold;
+  font-size: 1.5rem;
+  &:hover {
+    background: ${theme.colors.tertiary};
+  }
+`
 export default Home
