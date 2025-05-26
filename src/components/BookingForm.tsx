@@ -36,6 +36,9 @@ const Row = styled.div`
     display: flex;
     gap: 0.75rem;
     margin-bottom: 1rem;
+    @media (max-width: 480px) {
+        flex-direction: column;
+    }
 `;
 
 const FormField = styled.div`
