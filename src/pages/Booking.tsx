@@ -1,16 +1,25 @@
+import { useState } from "react";
 import styled from "styled-components";
 import { theme } from "../styles/theme";
 import BookingForm from "../components/BookingForm";
+import MapWithRoute from "../components/MapWithRoute";
 
 const Booking = () => {
+  const [lieuDepart, setLieuDepart] = useState("");
+  const [lieuArrivee, setLieuArrivee] = useState("");
   return (
    
       <Section>
         <H2>RESERVEZ UN VTC MAINTENANT</H2>
             <BookingContainer>
-                <BookingForm/>
+                <BookingForm
+                  onLieuChange={(depart: string, arrivee: string) => {
+                    setLieuDepart(depart);
+                    setLieuArrivee(arrivee);
+                  }}
+                />
                 <Maps>
-                   
+                   <MapWithRoute depart={lieuDepart} arrivee={lieuArrivee} />
                 </Maps>
             </BookingContainer>
       </Section>
@@ -68,9 +77,13 @@ const BookingContainer = styled.div`
 
 const Maps = styled.div`
     width: 40%;
-    height: 300px;
+    height: 650px;
     background: white;
+    border-radius: 10px;
     z-index: 2;
+    @media (max-width: 768px) {
+        width: 80%;
+    }
 `
 
 export default Booking

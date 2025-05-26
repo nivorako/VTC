@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Formik, Field, Form } from "formik";
 import * as Yup from "yup";
 import styled from 'styled-components';
@@ -20,7 +21,7 @@ const FormContainer = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 2;
   @media (max-width: 768px) {
-    max-width: 80%;
+    max-width: 90%;
     margin: 0 auto;
   }
 `;
@@ -98,7 +99,11 @@ const ErrorMessage = styled.div`
   margin-top: 0.25rem;
 `;
 
-const BookingForm = () => (
+type BookingFormProps = {
+  onLieuChange: (depart: string, arrivee: string) => void;
+};
+
+const BookingForm = ({ onLieuChange }: BookingFormProps) => (
   <FormContainer>
     <Formik
       initialValues={{
@@ -111,11 +116,18 @@ const BookingForm = () => (
         passagersEnfants: 0,
       }}
       validationSchema={ReservationSchema}
-      onSubmit={(values) => {
+      onSubmit={(values, { resetForm }) => {
         console.log(values);
+        alert("Reservation enregistrée");
+        resetForm();
       }}
     >
-      {({ errors, touched, setFieldValue }) => (
+      {({ errors, touched, setFieldValue, values }) => {
+        useEffect(() => {
+          onLieuChange(values.depart, values.arrivee);
+        }, [values.depart, values.arrivee]);
+      
+        return (
         <Form>
           {/* Section 1: Détails du trajet */}
           <SectionTitle>Détails du trajet</SectionTitle>
@@ -191,7 +203,7 @@ const BookingForm = () => (
 
           <SubmitButton type="submit">Réserver maintenant</SubmitButton>
         </Form>
-      )}
+)}}
     </Formik>
   </FormContainer>
 );
