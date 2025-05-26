@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import backgroundIMG from "../assets/voiture.webp";
 import { theme } from "../styles/theme";
+import { Link } from "react-router-dom";
+
 const Home = () => {
   return (
    
@@ -15,8 +17,10 @@ const Home = () => {
         </Span1>
         <Span2>
           06 00 08 00 00
-        </Span2>
-        <BookingBTN>Reservez votre VTC</BookingBTN>
+        </Span2>  
+        
+          <BookingBTN to="/booking">Reservez votre VTC</BookingBTN>
+        
       </Section>
   
   )
@@ -81,7 +85,7 @@ const Span2 = styled.span`
   z-index: 2;
 `
 
-const BookingBTN = styled.button`
+const BookingBTN = styled(Link)`
   background: ${theme.colors.secondary};
   color: white;
   padding: 1rem 2rem;
@@ -91,6 +95,7 @@ const BookingBTN = styled.button`
   z-index: 2;
   font-weight: bold;
   font-size: 1.5rem;
+  text-decoration: none;
   &:hover {
     background: ${theme.colors.tertiary};
   }
