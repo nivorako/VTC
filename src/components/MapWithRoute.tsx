@@ -1,94 +1,131 @@
-import React, { useState, useRef } from "react";
-import {
-  GoogleMap,
-  LoadScript,
-  Autocomplete,
-  DirectionsRenderer
-} from "@react-google-maps/api";
+import React, { useState } from "react";
+import { GoogleMap, LoadScript, DirectionsRenderer } from "@react-google-maps/api";
+import styled from 'styled-components';
 
 const libraries = ["places"] as ("places")[];
-
  
-const containerStyle = {
-  width: "100%",
-  height: "400px"
-};
+const MapContainer = styled.div`
+  width: 100%;
+  margin-bottom: 1rem;
+`;
 
-const center = {
-  lat: 48.8566, // Paris par défaut
-  lng: 2.3522
-};
+const MapWrapper = styled.div`
+  width: 100%;
+  height: 400px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const InfoBox = styled.div`
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+`;
+
+const InfoItem = styled.div`
+  flex: 1;
+  min-width: 120px;
+`;
+
+const InfoLabel = styled.div`
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+`;
+
+const InfoValue = styled.div`
+  font-weight: 600;
+  color: #212529;
+`;
 
 interface MapWithRouteProps {
-    depart: string;
-    arrivee: string;
-  }
+  depart: string;
+  arrivee: string;
+}
 
-const MapWithRoute: React.FC<MapWithRouteProps> = ({ depart, arrivee }: MapWithRouteProps) => {
+const MapWithRoute: React.FC<MapWithRouteProps> = ({ depart, arrivee }) => {
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
+  const [startAddress, setStartAddress] = useState("");
+  const [endAddress, setEndAddress] = useState("");
 
-  const originRef = useRef<HTMLInputElement>(null);
-  const destinationRef = useRef<HTMLInputElement>(null);
-  const autocompleteOrigin = useRef<google.maps.places.Autocomplete | null>(null);
-  const autocompleteDestination = useRef<google.maps.places.Autocomplete | null>(null);
-
-  const calculateRoute = async () => {
-    if (!originRef.current || !destinationRef.current) return;
-
-    //const directionsService = new google.maps.DirectionsService();
-
-    // const result = await directionsService.route({
-    //   origin: originRef.current.value,
-    //   destination: destinationRef.current.value,
-    //   travelMode: google.maps.TravelMode.DRIVING
-    // });
-
-    (directionResult: google.maps.DirectionsResult, status: google.maps.DirectionsStatus) => {
-      if (status === "OK") {
-        setDirections(directionResult);
-        const leg = directionResult.routes[0].legs[0];
-        setDistance(leg.distance?.text || "");
-        setDuration(leg.duration?.text || "");
-      }
+  // Calculer le trajet quand les props changent
+  React.useEffect(() => {
+    if (depart && arrivee) {
+      const directionsService = new google.maps.DirectionsService();
+      
+      directionsService.route(
+        {
+          origin: depart,
+          destination: arrivee,
+          travelMode: google.maps.TravelMode.DRIVING
+        },
+        (result, status) => {
+          if (status === "OK" && result) {
+            setDirections(result);
+            const leg = result.routes[0].legs[0];
+            setDistance(leg.distance?.text || "");
+            setDuration(leg.duration?.text || "");
+            setStartAddress(leg.start_address || "");
+            setEndAddress(leg.end_address || "");
+          }
+        }
+      );
     }
-    
-  };
+  }, [depart, arrivee]);
 
   return (
-    <LoadScript
-      googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY!}
-      libraries={libraries}
-    >
-      <div>
-        <Autocomplete
-          onLoad={(auto) => (autocompleteOrigin.current = auto)}
-        >
-          <input type="text" placeholder="Lieu de départ" ref={originRef}  defaultValue={depart}/>
-        </Autocomplete>
+    <MapContainer>
+      <LoadScript
+        googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY!}
+        libraries={libraries}
+      >
+        <MapWrapper>
+          <GoogleMap
+            mapContainerStyle={{ width: '100%', height: '100%' }}
+            center={directions?.routes[0]?.bounds?.getCenter() || { lat: 48.8566, lng: 2.3522 }}
+            zoom={12}
+            options={{
+              zoomControl: true,
+              mapTypeControl: false,
+              streetViewControl: false,
+              fullscreenControl: true,
+            }}
+          >
+            {directions && <DirectionsRenderer directions={directions} />}
+          </GoogleMap>
+        </MapWrapper>
+      </LoadScript>
 
-        <Autocomplete
-          onLoad={(auto) => (autocompleteDestination.current = auto)}
-        >
-          <input type="text" placeholder="Lieu d’arrivée" ref={destinationRef} defaultValue={arrivee}/>
-        </Autocomplete>
-
-        <button onClick={calculateRoute}>Afficher le trajet</button>
-
-        {distance && duration && (
-          <p>Distance : {distance} – Durée estimée : {duration}</p>
-        )}
-
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={center}
-          zoom={11}
-        >
-          {directions && <DirectionsRenderer directions={directions} />}
-        </GoogleMap>
-      </div>
-    </LoadScript>
+      {(distance || duration) && (
+        <InfoBox>
+          
+          <InfoItem>
+            <InfoLabel>Départ</InfoLabel>
+            <InfoValue>{startAddress}</InfoValue>
+          </InfoItem>
+          <InfoItem>
+            <InfoLabel>Arrivée</InfoLabel>
+            <InfoValue>{endAddress}</InfoValue>
+          </InfoItem>
+          <InfoItem>
+            <InfoLabel>Distance</InfoLabel>
+            <InfoValue>{distance}</InfoValue>
+          </InfoItem>
+          <InfoItem>
+            <InfoLabel>Durée estimée</InfoLabel>
+            <InfoValue>{duration}</InfoValue>
+          </InfoItem>
+        </InfoBox>
+      )}
+    </MapContainer>
   );
 };
 

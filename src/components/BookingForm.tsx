@@ -111,7 +111,7 @@ const BookingForm = ({ onLieuChange }: BookingFormProps) => (
         heure: "",
         depart: "",
         arrivee: "",
-        typeTrajet: "aller_simple",
+        typeTrajet: "",
         passagersAdultes: 1,
         passagersEnfants: 0,
       }}
