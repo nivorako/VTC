@@ -11,17 +11,19 @@ const Booking = () => {
    
       <Section>
         <H2>RESERVEZ UN VTC MAINTENANT</H2>
-            <BookingContainer>
-                <BookingForm
-                  onLieuChange={(depart: string, arrivee: string) => {
-                    setLieuDepart(depart);
-                    setLieuArrivee(arrivee);
-                  }}
-                />
-                <Maps>
-                   <MapWithRoute depart={lieuDepart} arrivee={lieuArrivee} />
-                </Maps>
-            </BookingContainer>
+        <BookingContainer>
+            <BookingFormContainer>
+              <BookingForm
+                onLieuChange={(depart: string, arrivee: string) => {
+                  setLieuDepart(depart);
+                  setLieuArrivee(arrivee);
+                }}
+            />
+            </BookingFormContainer>
+            <Maps>
+                <MapWithRoute depart={lieuDepart} arrivee={lieuArrivee} />
+            </Maps>
+        </BookingContainer>
       </Section>
   
   )
@@ -42,7 +44,7 @@ const Section = styled.section`
     width: 100%;
     height: 100%;
     margin: auto;
-    padding: 0 30px;
+    padding: 0 10px;
     text-align: center;
     background: ${theme.colors.background}; 
     display: flex;
@@ -75,11 +77,25 @@ const BookingContainer = styled.div`
     }
 `
 
+const BookingFormContainer = styled.div`
+    width: 40%;
+    height: 650px;
+    overflow-y: auto;
+    border: 20px solid #fff;
+    border-radius: 10px;
+    @media (max-width: 768px) {
+        width: 80%;
+        min-height: auto;
+        height: auto;
+    }
+`
+
 const Maps = styled.div`
     width: 40%;
     height: 650px;
     background: white;
     border-radius: 10px;
+    border: 20px solid #fff;
     z-index: 2;
     @media (max-width: 768px) {
         width: 80%;

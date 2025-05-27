@@ -14,14 +14,16 @@ const ReservationSchema = Yup.object().shape({
 });
 
 const FormContainer = styled.div`
-  max-width: 50%;
+  width: 100%;
+  height: auto;
+  
   background: white;
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 2;
   @media (max-width: 768px) {
-    max-width: 90%;
+    width: 100%;
     margin: 0 auto;
   }
 `;
@@ -37,7 +39,7 @@ const Row = styled.div`
     display: flex;
     gap: 0.75rem;
     margin-bottom: 1rem;
-    @media (max-width: 480px) {
+    @media (max-width: 1224px) {
         flex-direction: column;
     }
 `;
