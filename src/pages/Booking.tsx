@@ -5,8 +5,21 @@ import BookingForm from "../components/BookingForm";
 import MapWithRoute from "../components/MapWithRoute";
 
 const Booking = () => {
-  const [lieuDepart, setLieuDepart] = useState("");
-  const [lieuArrivee, setLieuArrivee] = useState("");
+
+  const [formValues, setFormValues] = useState({
+    date: "",
+    heure: "",
+    depart: "",
+    arrivee: "",
+    typeTrajet: "",
+    passagersAdultes: 1,
+    passagersEnfants: 0,
+  });
+
+  const handleFormChange = (values: any) => {
+    setFormValues(values);
+  };
+
   return (
    
       <Section>
@@ -15,13 +28,16 @@ const Booking = () => {
             <BookingFormContainer>
               <BookingForm
                 onLieuChange={(depart: string, arrivee: string) => {
-                  setLieuDepart(depart);
-                  setLieuArrivee(arrivee);
+                 
                 }}
+                onFormChange={handleFormChange}
             />
             </BookingFormContainer>
             <Maps>
-                <MapWithRoute depart={lieuDepart} arrivee={lieuArrivee} />
+                <MapWithRoute 
+                  depart={formValues.depart} 
+                  arrivee={formValues.arrivee} 
+                />
             </Maps>
         </BookingContainer>
       </Section>
