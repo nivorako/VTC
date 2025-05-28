@@ -27,11 +27,8 @@ const Booking = () => {
         <BookingContainer>
             <BookingFormContainer>
               <BookingForm
-                onLieuChange={(depart: string, arrivee: string) => {
-                 
-                }}
                 onFormChange={handleFormChange}
-            />
+              />
             </BookingFormContainer>
             <Maps>
                 <MapWithRoute 

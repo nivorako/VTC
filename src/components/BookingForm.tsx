@@ -100,11 +100,11 @@ const ErrorText = styled.div`
 // ... (les imports et styles restent les mêmes)
 
 type BookingFormProps = {
-  onLieuChange: (depart: string, arrivee: string) => void;
+ 
   onFormChange: (values: any) => void;  // Nouvelle prop
 };
 
-const BookingForm = ({ onLieuChange, onFormChange }: BookingFormProps) => {
+const BookingForm = ({ onFormChange }: BookingFormProps) => {
   const [formValues, setFormValues] = useState({
     date: "",
     heure: "",
@@ -131,8 +131,8 @@ const BookingForm = ({ onLieuChange, onFormChange }: BookingFormProps) => {
           // Mise à jour des valeurs du formulaire
           useEffect(() => {
             setFormValues(values);
-            onLieuChange(values.depart, values.arrivee);
-          }, [values, onLieuChange]);
+          
+          }, [values]);
 
           return (
             <Form>
