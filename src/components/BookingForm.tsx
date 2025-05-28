@@ -15,25 +15,33 @@ const ReservationSchema = Yup.object().shape({
 
 const FormContainer = styled.div`
   width: 100%;
-  height: auto;
-  background: white;
-  padding: 1rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 2;
-  
+  background:rgb(13, 84, 155);
+  box-sizing: border-box;
   @media (max-width: 768px) {
     width: 100%;
     margin: 0 auto;
   }
 `;
 
+const StyledForm = styled(Form)`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+`;
+
+
 const Section = styled.div`
-  margin-bottom: 1.5rem;
   padding: 1rem;
   background: #f8f9fa;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  overflow-y: auto;
 `;
 
 const SectionTitle = styled.h3`
@@ -135,7 +143,7 @@ const BookingForm = ({ onFormChange }: BookingFormProps) => {
           }, [values]);
 
           return (
-            <Form>
+            <StyledForm>
               {/* Le reste du formulaire reste inchangé */}
               <Section>
                 <SectionTitle>Détails du trajet</SectionTitle>
@@ -223,7 +231,7 @@ const BookingForm = ({ onFormChange }: BookingFormProps) => {
                   <ErrorMessage name="typeTrajet" component={ErrorText} />
                 </FormField>
               </Section>
-            </Form>
+            </StyledForm>
           );
         }}
       </Formik>
