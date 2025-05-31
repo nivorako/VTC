@@ -11,6 +11,22 @@ interface ButtonBaseProps {
   $variant: ButtonVariant;
   $size: ButtonSize;
   $fullWidth: boolean;
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}
+
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  to?: string;
+  type?: 'button' | 'submit' | 'reset';
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
+  disabled?: boolean;
+  fullWidth?: boolean;
+  className?: string;
+  as?: React.ElementType;
+  $variant?: never; // Empêche l'utilisation directe de ces props
 }
 
 const getVariantStyles = (variant: ButtonVariant) => {
@@ -89,7 +105,25 @@ const ButtonBase = styled.button<ButtonBaseProps>`
   `}
 `;
 
-const LinkButton = styled(Link)<ButtonBaseProps>`
+const LinkButton = React.forwardRef<HTMLAnchorElement, ButtonBaseProps & { to: string }>(({ 
+  children, 
+  ...props 
+}, ref) => {
+  return (
+    <StyledLink 
+      ref={ref} 
+      {...props}
+    >
+      {children}
+    </StyledLink>
+  );
+});
+LinkButton.displayName = 'LinkButton';
+
+
+const StyledLink = styled(Link).withConfig({
+  shouldForwardProp: (prop) => !['$variant', '$size', '$fullWidth'].includes(prop),
+})<ButtonBaseProps>`
   ${({ $variant }) => getVariantStyles($variant)}
   ${({ $size }) => getSizeStyles($size)}
   ${({ $fullWidth }) => $fullWidth && 'width: 100%;'}
@@ -110,21 +144,7 @@ const LinkButton = styled(Link)<ButtonBaseProps>`
   }
 `;
 
-interface ButtonProps {
-  children: React.ReactNode;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  to?: string;
-  type?: 'button' | 'submit' | 'reset';
-  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
-  disabled?: boolean;
-  fullWidth?: boolean;
-  className?: string;
-  as?: React.ElementType;
-}
-
-
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
+export const Button = React.forwardRef<HTMLButtonElement |  HTMLAnchorElement, ButtonProps>(({
   children,
   variant = 'primary',
   size = 'medium',
@@ -141,7 +161,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
       e.preventDefault();
       return;
     }
-    console.log("Button onClick appelé"); // Ajoutez ce log
     onClick?.(e);
   };
   const commonProps = {
@@ -150,8 +169,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
     $fullWidth: fullWidth,
     className,
     onClick: handleClick,
-    type,
-    disabled,
+    type: to ? undefined : type,
+    disabled: to ? undefined : disabled,
   };
 
   if (to) {
@@ -159,6 +178,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
       <LinkButton
         to={to}
         {...commonProps}
+        ref={ref as React.RefObject<HTMLAnchorElement>}
         style={disabled ? { pointerEvents: 'none', opacity: 0.6, cursor: 'not-allowed' } : {}}
       >
         {children}

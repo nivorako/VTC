@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect} from "react";
 import styled from "styled-components";
 import { theme } from "../styles/theme";
 import BookingForm from "../components/BookingForm";
@@ -8,8 +8,10 @@ import { useRef } from "react";
 
 const Booking = () => {
 
-  const buttonRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
   const [isValid, setIsValid] = useState(false);
+
+  const [isButtonMounted, setIsButtonMounted] = useState(false);
 
   const [formValues, setFormValues] = useState({
     date: "",
@@ -21,49 +23,61 @@ const Booking = () => {
     passagersEnfants: 0,
   });
 
-  // Mémorisation de la fonction de validation
-  // const isFormValid = useCallback(() => {
-  //   return (
-  //     formValues.date &&
-  //     formValues.heure &&
-  //     formValues.depart &&
-  //     formValues.arrivee &&
-  //     formValues.typeTrajet
-  //   );
-  // }, [formValues]);
-
-
   const handleFormChange = (values: any) => {
     setFormValues(values);
-     // Met à jour l'état de validation
-     const formIsValid = Boolean(
-      values.date &&
-      values.heure &&
-      values.depart &&
-      values.arrivee &&
-      values.typeTrajet
-    );
-    console.log('isValid:', formIsValid, values)
-    setIsValid(formIsValid);
+    console.log("FormValues updated :", values)
+    
   };
+
+  useEffect(() => {
+    if (buttonRef.current) {
+      console.log("Button mounted successfully");
+      setIsButtonMounted(true);
+    }
+    return () => setIsButtonMounted(false);
+  }, []);
+
 
    // Effet pour le défilement
    useEffect(() => {
-    if (isValid && buttonRef.current) {
-      // Utilisation de setTimeout pour s'assurer que le DOM est mis à jour
-      const timer = setTimeout(() => {
-        buttonRef.current?.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'center'
-        });
-      }, 100);
+    console.log('useEffect triggered with formValues:', formValues);
+    console.log('buttonRef.current:', buttonRef.current);
+
+    // Met à jour l'état de validation
+    const formIsValid = Boolean(
+      formValues.date &&
+      formValues.heure &&
+      formValues.depart &&
+      formValues.arrivee &&
+      formValues.typeTrajet
+    );
+    setIsValid(formIsValid);
+
+  if (formIsValid) {
       
+    if (isButtonMounted && buttonRef.current) {
+      console.log("Button is mounted, scrolling...");
+      buttonRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'center'
+      });
+    } else {
+      console.log("Button not mounted yet, scheduling scroll...");
+      const timer = setTimeout(() => {
+        if (buttonRef.current) {
+          buttonRef.current.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+      }, 500);
       return () => clearTimeout(timer);
-    }
-  }, [isValid]);
+    }  
+      
+  }
+  }, [formValues, isButtonMounted]);
 
   const handleSubmit = (e?: React.MouseEvent<HTMLElement>) => {
-    console.log("handleSubmit appelé");
     e?.preventDefault();
     if (isValid) {
       console.log("Formulaire soumis avec succès", formValues);
@@ -87,40 +101,21 @@ const Booking = () => {
                   arrivee={formValues.arrivee} 
                 />
             </Maps>
-        </BookingContainer>
-        {/* <div
-          ref={buttonRef}
-        > 
-          <div>isValid: {isValid.toString()}</div>
-          <Button 
-              to="/Booking"
-              variant="primary"
-              size="large"
-              disabled={!isValid}
-              onClick={(e) => {
-                e?.preventDefault(); // Empêche la soumission par défaut
-                handleSubmit(e);
-              }}
-              type={isValid ? "submit" : "button"}
-             
-            >
-              Choisir un véhicule
-          </Button>
-        </div> */}
-        <Button 
-              to="/Booking"
-              variant="primary"
-              size="large"
-              disabled={!isValid}
-              onClick={(e) => {
-                console.log("Bouton cliqué");
-                e?.preventDefault(); // Empêche la soumission par défaut
-                handleSubmit(e);
-              }}
-              type="button"
-             
-            >
-              Choisir un véhicule
+        </BookingContainer>       
+          <Button
+                ref={buttonRef}
+                to="/Booking"
+                variant="primary"
+                size="large"
+                disabled={!isValid}
+                onClick={(e) => {
+                  e?.preventDefault();
+                  handleSubmit(e);
+                }}
+                type="button"
+              
+              >
+                Choisir un véhicule
           </Button>
       </Section>
   
