@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
@@ -43,10 +45,10 @@ const getVariantStyles = (variant: ButtonVariant) => {
       case 'primary':
       default:
         return `
-          background: ${theme.colors.secondary};
+          background: ${theme.colors.primaryDark};
           color: white;
           &:hover {
-            background: ${theme.colors.primaryDark};
+            background: ${theme.colors.primary};
           }
         `;
     }
@@ -80,10 +82,11 @@ const ButtonBase = styled.button<ButtonBaseProps>`
   ${({ $size }) => getSizeStyles($size)}
   ${({ $fullWidth }) => $fullWidth && 'width: 100%;'}
 
-  &:disabled {
+  ${({ disabled }) => disabled && `
     opacity: 0.6;
     cursor: not-allowed;
-  }
+    pointer-events: none;
+  `}
 `;
 
 const LinkButton = styled(Link)<ButtonBaseProps>`
@@ -112,14 +115,16 @@ interface ButtonProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
   to?: string;
-  onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
   disabled?: boolean;
   fullWidth?: boolean;
   className?: string;
+  as?: React.ElementType;
 }
 
-export const Button = ({
+
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   children,
   variant = 'primary',
   size = 'medium',
@@ -129,27 +134,43 @@ export const Button = ({
   disabled = false,
   fullWidth = false,
   className,
-}: ButtonProps) => {
+  as: Component = 'button',
+}, ref) => {
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (disabled) {
+      e.preventDefault();
+      return;
+    }
+    console.log("Button onClick appelé"); // Ajoutez ce log
+    onClick?.(e);
+  };
   const commonProps = {
     $variant: variant,
     $size: size,
     $fullWidth: fullWidth,
-    onClick,
-    disabled,
     className,
+    onClick: handleClick,
+    type,
+    disabled,
   };
 
   if (to) {
     return (
-      <LinkButton to={to} {...commonProps}>
+      <LinkButton
+        to={to}
+        {...commonProps}
+        style={disabled ? { pointerEvents: 'none', opacity: 0.6, cursor: 'not-allowed' } : {}}
+      >
         {children}
       </LinkButton>
     );
   }
 
   return (
-    <ButtonBase type={type} {...commonProps}>
+    <ButtonBase 
+      {...commonProps}
+    >
       {children}
     </ButtonBase>
   );
-};
+});

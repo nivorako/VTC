@@ -104,27 +104,25 @@ const MapWithRoute: React.FC<MapWithRouteProps> = ({ depart, arrivee }) => {
         </MapWrapper>
       </LoadScript>
 
-      {(distance || duration) && (
-        <InfoBox>
+      <InfoBox>
           
           <InfoItem>
             <InfoLabel>Départ</InfoLabel>
-            <InfoValue>{startAddress}</InfoValue>
+            <InfoValue>{startAddress || ""}</InfoValue>
           </InfoItem>
           <InfoItem>
             <InfoLabel>Arrivée</InfoLabel>
-            <InfoValue>{endAddress}</InfoValue>
+            <InfoValue>{endAddress || ""}</InfoValue>
           </InfoItem>
           <InfoItem>
             <InfoLabel>Distance</InfoLabel>
-            <InfoValue>{distance}</InfoValue>
+            <InfoValue>{distance || "0 KM"}</InfoValue>
           </InfoItem>
           <InfoItem>
             <InfoLabel>Durée estimée</InfoLabel>
-            <InfoValue>{duration}</InfoValue>
+            <InfoValue>{duration || "0h 00mn"}</InfoValue>
           </InfoItem>
         </InfoBox>
-      )}
     </MapContainer>
   );
 };

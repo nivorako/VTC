@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { theme } from "../styles/theme";
 import BookingForm from "../components/BookingForm";
 import MapWithRoute from "../components/MapWithRoute";
+import { Button } from "../components/Button";
+import { useRef } from "react";
 
 const Booking = () => {
+
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const [isValid, setIsValid] = useState(false);
 
   const [formValues, setFormValues] = useState({
     date: "",
@@ -16,8 +21,54 @@ const Booking = () => {
     passagersEnfants: 0,
   });
 
+  // Mémorisation de la fonction de validation
+  // const isFormValid = useCallback(() => {
+  //   return (
+  //     formValues.date &&
+  //     formValues.heure &&
+  //     formValues.depart &&
+  //     formValues.arrivee &&
+  //     formValues.typeTrajet
+  //   );
+  // }, [formValues]);
+
+
   const handleFormChange = (values: any) => {
     setFormValues(values);
+     // Met à jour l'état de validation
+     const formIsValid = Boolean(
+      values.date &&
+      values.heure &&
+      values.depart &&
+      values.arrivee &&
+      values.typeTrajet
+    );
+    console.log('isValid:', formIsValid, values)
+    setIsValid(formIsValid);
+  };
+
+   // Effet pour le défilement
+   useEffect(() => {
+    if (isValid && buttonRef.current) {
+      // Utilisation de setTimeout pour s'assurer que le DOM est mis à jour
+      const timer = setTimeout(() => {
+        buttonRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isValid]);
+
+  const handleSubmit = (e?: React.MouseEvent<HTMLElement>) => {
+    console.log("handleSubmit appelé");
+    e?.preventDefault();
+    if (isValid) {
+      console.log("Formulaire soumis avec succès", formValues);
+      // Ici, vous pouvez ajouter la logique de soumission du formulaire
+    }
   };
 
   return (
@@ -37,6 +88,40 @@ const Booking = () => {
                 />
             </Maps>
         </BookingContainer>
+        {/* <div
+          ref={buttonRef}
+        > 
+          <div>isValid: {isValid.toString()}</div>
+          <Button 
+              to="/Booking"
+              variant="primary"
+              size="large"
+              disabled={!isValid}
+              onClick={(e) => {
+                e?.preventDefault(); // Empêche la soumission par défaut
+                handleSubmit(e);
+              }}
+              type={isValid ? "submit" : "button"}
+             
+            >
+              Choisir un véhicule
+          </Button>
+        </div> */}
+        <Button 
+              to="/Booking"
+              variant="primary"
+              size="large"
+              disabled={!isValid}
+              onClick={(e) => {
+                console.log("Bouton cliqué");
+                e?.preventDefault(); // Empêche la soumission par défaut
+                handleSubmit(e);
+              }}
+              type="button"
+             
+            >
+              Choisir un véhicule
+          </Button>
       </Section>
   
   )
@@ -57,11 +142,11 @@ const Section = styled.section`
     width: 100%;
     height: 100%;
     margin: auto;
-    padding: 0 10px;
+    padding: 0 10px 20px;
     text-align: center;
     background: ${theme.colors.background}; 
     display: flex;
-    flex-direction: column;
+    flex-direction: column; 
     justify-content: center;
     align-items: center;
     gap: 2rem;

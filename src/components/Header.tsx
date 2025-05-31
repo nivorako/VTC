@@ -22,7 +22,7 @@ const HeaderContainer = styled.header`
 `;
 
 const Logo = styled.img`
-  height: 75px; /* Ajuste selon ton logo */
+  height: 50px; 
 `;
 
 const Nav = styled.nav`
