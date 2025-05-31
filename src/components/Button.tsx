@@ -154,7 +154,6 @@ export const Button = React.forwardRef<HTMLButtonElement |  HTMLAnchorElement, B
   disabled = false,
   fullWidth = false,
   className,
-  as: Component = 'button',
 }, ref) => {
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     if (disabled) {
