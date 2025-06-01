@@ -6,6 +6,7 @@ import Services from '../pages/Services'
 import Mentions from '../pages/Mentions'
 import MainLayout from '../layout/MainLayout'
 import Booking from '../pages/Booking'
+import BookingCar from '../pages/BookingCar'
 
 export const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ export const router = createBrowserRouter([
       {
         path: '/booking',
         element: <Booking />
+      },
+      {
+        path: '/bookingCar',
+        element: <BookingCar />
       }
     ]
   }

@@ -10,11 +10,10 @@ const HeaderContainer = styled.header`
   top: 0;
   max-width: 1440px;
   width: 100%;
+  background: ${theme.colors.background};
   margin: 0 auto;
+  padding: 0 10px;
   box-sizing: border-box;
-  background: transparent;
-  backdrop-filter: blur(10px); /* Effet de flou pour améliorer la lisibilité */
-  padding: 15px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -28,6 +27,9 @@ const Logo = styled.img`
 const Nav = styled.nav`
   display: flex;
   gap: 100px;
+ 
+  padding: 10px 100px;
+  border-radius: 5px;
   @media (max-width: 768px) {
     display: none;
   }
@@ -85,7 +87,7 @@ function Header() {
   const handleClick = () => {
     setIsOpen(!isOpen);
   };
-  console.log("isOpen", isOpen);
+
   return (
     <HeaderContainer>
       <RouterNavLink to="/">

@@ -25,13 +25,11 @@ const Booking = () => {
 
   const handleFormChange = (values: any) => {
     setFormValues(values);
-    console.log("FormValues updated :", values)
-    
   };
 
   useEffect(() => {
     if (buttonRef.current) {
-      console.log("Button mounted successfully");
+      
       setIsButtonMounted(true);
     }
     return () => setIsButtonMounted(false);
@@ -40,9 +38,7 @@ const Booking = () => {
 
    // Effet pour le défilement
    useEffect(() => {
-    console.log('useEffect triggered with formValues:', formValues);
-    console.log('buttonRef.current:', buttonRef.current);
-
+   
     // Met à jour l'état de validation
     const formIsValid = Boolean(
       formValues.date &&
@@ -56,13 +52,13 @@ const Booking = () => {
   if (formIsValid) {
       
     if (isButtonMounted && buttonRef.current) {
-      console.log("Button is mounted, scrolling...");
+      
       buttonRef.current.scrollIntoView({ 
         behavior: 'smooth',
         block: 'center'
       });
     } else {
-      console.log("Button not mounted yet, scheduling scroll...");
+      
       const timer = setTimeout(() => {
         if (buttonRef.current) {
           buttonRef.current.scrollIntoView({ 
@@ -78,10 +74,9 @@ const Booking = () => {
   }, [formValues, isButtonMounted]);
 
   const handleSubmit = (e?: React.MouseEvent<HTMLElement>) => {
-    e?.preventDefault();
+    
     if (isValid) {
-      console.log("Formulaire soumis avec succès", formValues);
-      // Ici, vous pouvez ajouter la logique de soumission du formulaire
+      
     }
   };
 
@@ -104,12 +99,14 @@ const Booking = () => {
         </BookingContainer>       
           <Button
                 ref={buttonRef}
-                to="/Booking"
+                to="/BookingCar"
                 variant="primary"
                 size="large"
                 disabled={!isValid}
                 onClick={(e) => {
-                  e?.preventDefault();
+                  if (!isValid) {
+                    e?.preventDefault();
+                  }
                   handleSubmit(e);
                 }}
                 type="button"
