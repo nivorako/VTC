@@ -73,12 +73,7 @@ const Booking = () => {
   }
   }, [formValues, isButtonMounted]);
 
-  const handleSubmit = (e?: React.MouseEvent<HTMLElement>) => {
-    
-    if (isValid) {
-      
-    }
-  };
+  const handleSubmit = () => {};
 
   return (
    
@@ -107,7 +102,7 @@ const Booking = () => {
                   if (!isValid) {
                     e?.preventDefault();
                   }
-                  handleSubmit(e);
+                  handleSubmit();
                 }}
                 type="button"
               
