@@ -14,7 +14,7 @@ export default function BookingCar() {
     
     return (
         <Section>
-            <h1 style={{color: "white"}}>BookingCar</h1>
+            <h1 style={{color: "white"}}>RESERVEZ UN VTC MAINTENANT</h1>
             <BookingCarContainer>
                 <BookingCarDetails>
                    Booking CarDetails 
