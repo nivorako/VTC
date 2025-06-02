@@ -1,10 +1,12 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { theme } from "../styles/theme";
-import Berline from "../assets/berline.webp";
-import BerlineLux from "../assets/berlineLux.webp";
-import Van from "../assets/van.webp";
 import { Button } from "../components/Button";
+
+const Berline = new URL("/src/assets/berline.webp", import.meta.url).href;
+const BerlineLux = new URL("/src/assets/berlineLux.webp", import.meta.url).href;
+const Van = new URL("/src/assets/van.webp", import.meta.url).href;
+
 
 export default function BookingCar() {
     const [selectedCar, setSelectedCar] = useState<string | null>(null);
@@ -34,7 +36,7 @@ export default function BookingCar() {
                             </Button>
                         </CarChoice>
                     </Car>  
-                    <Car>
+                    <Car style={{border: selectedCar === "BerlineLux" ? `20px solid ${theme.colors.primaryDark}` : "none"}}>
                         <CarImage src={BerlineLux} alt="berlineLux" />
                         <CarInfos>
                             infos
@@ -50,7 +52,7 @@ export default function BookingCar() {
                             </Button>
                         </CarChoice>
                     </Car>  
-                    <Car>
+                    <Car style={{border: selectedCar === "Van" ? `20px solid ${theme.colors.primaryDark}` : "none"}}>
                         <CarImage src={Van} alt="van" />
                         <CarInfos>
                             infos
