@@ -98,6 +98,7 @@ const BookingCarContainer = styled.div`
     gap: 1rem;
     @media (max-width: 768px) {
         flex-direction: column;
+        height: 90%;
     }
 `
 
@@ -110,6 +111,8 @@ const BookingCarDetails = styled.div`
     background: white;
     @media (max-width: 768px) {
         width: 100%;
+        height: 40vh;
+        min-height: 200px;
     }
 `
 const CarChoices = styled.div`
@@ -119,30 +122,52 @@ const CarChoices = styled.div`
     justify-content: center;
     flex-direction: column;
     align-items: center;
+    gap: 1rem;
     background: white;
     padding: 1rem;
     box-sizing: border-box;
-    @media (max-width: 768px) {
-        width: 100%;
+    overflow: hidden; // Pour éviter le débordement
+    @media (max-width: 1024px) {
+        
     }
+    @media (max-width: 768px) {
+        height: 50vh; 
+        width: 100%;
+        min-height: 250px;    }
 `
 const Car = styled.div` 
     width: 100%;
-    height: 100%;
+    flex: 1 1 auto; // Permet à chaque Car de prendre autant d'espace que possible
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     background: white;
     border-radius: 10px;
+    padding: 1rem;
+    box-sizing: border-box; 
+    overflow: hidden; // Pour éviter le débordement
+
     @media (max-width: 768px) {
-        
+        height: 16.66%; /* 50vh / 3 = 16.66% */
+        min-height: 83px;
     }
 `
 
 const CarImage = styled.img`
-    width: 100%;
-    height: auto;
+    width: 60%;
+    height: 50%;
     object-fit: contain;
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+    @media (max-width: 1024px) {
+        width: 70%; /* Un peu plus grand au-dessus de 1024px */
+        height: 60%;
+    }
+    @media (max-width: 768px) {
+        width: 90%; /* Un peu plus grand sur mobile */
+        height: 60%;
+    }
 `
 
 const CarInfos = styled.div`
@@ -165,6 +190,9 @@ const CarChoice = styled.div`
     align-items: center;
    
     @media (max-width: 768px) {
-        
+         button, a {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
     }
 `
