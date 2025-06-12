@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { GoogleMap, LoadScript, DirectionsRenderer } from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader, DirectionsRenderer } from "@react-google-maps/api";
 import styled from 'styled-components';
 
 const libraries = ["places"] as ("places")[];
@@ -51,15 +51,21 @@ interface MapWithRouteProps {
 }
 
 const MapWithRoute: React.FC<MapWithRouteProps> = ({ depart, arrivee, onRouteCalculated }) => {
+  const { isLoaded, loadError } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY!,
+    libraries: libraries,
+  });
+
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
   const [startAddress, setStartAddress] = useState("");
   const [endAddress, setEndAddress] = useState("");
 
-  // Calculer le trajet quand les props changent
+  // Calculer le trajet quand les props changent ET que la carte est chargée
   React.useEffect(() => {
-    if (depart && arrivee) {
+    if (isLoaded && depart && arrivee) {
       const directionsService = new google.maps.DirectionsService();
       
       directionsService.route(
@@ -83,33 +89,35 @@ const MapWithRoute: React.FC<MapWithRouteProps> = ({ depart, arrivee, onRouteCal
         }
       );
     }
-  }, [depart, arrivee, onRouteCalculated]);
+  }, [isLoaded, depart, arrivee, onRouteCalculated]);
+
+  if (loadError) {
+    return <div>Erreur lors du chargement de la carte. Vérifiez votre clé API et la console.</div>;
+  }
+
+  if (!isLoaded) {
+    return <div>Chargement de la carte...</div>;
+  }
 
   return (
     <MapContainer>
-      <LoadScript
-        googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY!}
-        libraries={libraries}
-      >
-        <MapWrapper>
-          <GoogleMap
-            mapContainerStyle={{ width: '100%', height: '100%' }}
-            center={directions?.routes[0]?.bounds?.getCenter() || { lat: 48.8566, lng: 2.3522 }}
-            zoom={12}
-            options={{
-              zoomControl: true,
-              mapTypeControl: false,
-              streetViewControl: false,
-              fullscreenControl: true,
-            }}
-          >
-            {directions && <DirectionsRenderer directions={directions} />}
-          </GoogleMap>
-        </MapWrapper>
-      </LoadScript>
+      <MapWrapper>
+        <GoogleMap
+          mapContainerStyle={{ width: '100%', height: '100%' }}
+          center={directions?.routes[0]?.bounds?.getCenter() || { lat: 48.8566, lng: 2.3522 }}
+          zoom={12}
+          options={{
+            zoomControl: true,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: true,
+          }}
+        >
+          {directions && <DirectionsRenderer directions={directions} />}
+        </GoogleMap>
+      </MapWrapper>
 
       <InfoBox>
-          
           <InfoItem>
             <InfoLabel>Départ</InfoLabel>
             <InfoValue>{startAddress || ""}</InfoValue>

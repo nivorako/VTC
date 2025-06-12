@@ -187,6 +187,7 @@ export const Button = React.forwardRef<HTMLButtonElement |  HTMLAnchorElement, B
 
   return (
     <ButtonBase 
+      ref={ref as React.RefObject<HTMLButtonElement>}
       {...commonProps}
     >
       {children}

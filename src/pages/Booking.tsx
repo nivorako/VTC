@@ -1,22 +1,33 @@
-import { useState, useEffect} from "react";
+
+
 import styled from "styled-components";
 import { theme } from "../styles/theme";
 import BookingForm from "../components/BookingForm";
 import MapWithRoute from "../components/MapWithRoute";
 import { Button } from "../components/Button";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import type { BookingInfo } from "../types/booking";
 import { useNavigate } from "react-router-dom";
+import useDebounce from "../hooks/useDebounce";
 
 const Booking = () => {
+  // État pour les valeurs brutes du formulaire, mises à jour immédiatement
+  const [rawFormValues, setRawFormValues] = useState<Omit<BookingInfo, 'vehicule'>>({
+    date: "",
+    heure: "",
+    depart: "",
+    arrivee: "",
+    typeTrajet: "",
+    passagersAdultes: 1,
+    passagersEnfants: 0,
+  });
+
+  // Valeur débauncée des données du formulaire
+  const debouncedFormValuesFromHook = useDebounce(rawFormValues, 500); // Délai de 500ms
+
   const navigate = useNavigate();
-
   const buttonRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
-  const [isValid, setIsValid] = useState(false);
   const [routeInfo, setRouteInfo] = useState({ distance: "", duration: "" });
-
-  const [isButtonMounted, setIsButtonMounted] = useState(false);
-
   const [formValues, setFormValues] = useState<BookingInfo>({
     date: "",
     heure: "",
@@ -29,104 +40,87 @@ const Booking = () => {
   });
 
   const handleFormChange = (values: Omit<BookingInfo, 'vehicule'>) => {
+    setRawFormValues(values); // Mettre à jour l'état brut immédiatement
+  };
+
+  // Mettre à jour l'état principal formValues uniquement lorsque la valeur débauncée change
+  useEffect(() => {
     setFormValues((prevValues) => ({
       ...prevValues,
-      ...values,
+      ...debouncedFormValuesFromHook,
     }));
-  };
+  }, [debouncedFormValuesFromHook]);
+
 
   const handleRouteCalculated = (routeData: { distance: string; duration: string }) => {
     setRouteInfo(routeData);
   };
 
-  useEffect(() => {
-    if (buttonRef.current) {
-      
-      setIsButtonMounted(true);
-    }
-    return () => setIsButtonMounted(false);
-  }, []);
-
-
-   // Effet pour le défilement
-   useEffect(() => {
-   
-    // Met à jour l'état de validation
-    const formIsValid = Boolean(
+  // Déterminer si le formulaire est valide en dérivant l'état.
+  const isFormValid =
+    Boolean(
       formValues.date &&
       formValues.heure &&
       formValues.depart &&
       formValues.arrivee &&
       formValues.typeTrajet
     );
-    setIsValid(formIsValid);
 
-  if (formIsValid) {
-      
-    if (isButtonMounted && buttonRef.current) {
-      
-      buttonRef.current.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'center'
-      });
-    } else {
-      
+  // Effet pour le défilement automatique vers le bouton lorsque le formulaire devient valide.
+  useEffect(() => {
+    if (isFormValid) {
+      // Un petit délai peut aider à s'assurer que le bouton est prêt pour le défilement.
       const timer = setTimeout(() => {
-        if (buttonRef.current) {
-          buttonRef.current.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'center'
-          });
-        }
-      }, 500);
+        buttonRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 100);
       return () => clearTimeout(timer);
-    }  
-      
-  }
-  }, [formValues, isButtonMounted]);
+    }
+  }, [isFormValid]);
 
+  // Contenu original partiellement réintroduit
   return (
-   
-      <Section>
-        <H2>RESERVEZ UN VTC MAINTENANT</H2>
-        <BookingContainer>
-            <BookingFormContainer>
-              <BookingForm
-                onFormChange={handleFormChange}
-              />
-            </BookingFormContainer>
-            <Maps>
-                <MapWithRoute 
-                  depart={formValues.depart} 
-                  arrivee={formValues.arrivee} 
-                  onRouteCalculated={handleRouteCalculated}
-                />
-            </Maps>
-        </BookingContainer>       
-          <Button
-                ref={buttonRef}
-
-                variant="primary"
-                size="large"
-                disabled={!isValid}
-                onClick={() => {
-                  if (isValid) {
-                    navigate('/BookingCar', { 
-                      state: { 
-                        bookingDetails: formValues, 
-                        distance: routeInfo.distance 
-                      }
-                    });
-                  }
-                }}
-                type="button"
-              
-              >
-                Choisir un véhicule
-          </Button>
-      </Section>
-  
-  )
+    <Section>
+      <H2>RESERVEZ UN VTC MAINTENANT</H2>
+      <BookingContainer>
+        <BookingFormContainer>
+          <BookingForm onFormChange={handleFormChange} />
+          {/* <div style={{ border: '1px dashed blue', padding: '10px', color: 'blue', background: 'rgba(0,0,255,0.1)' }}>Placeholder pour BookingForm</div> */}
+        </BookingFormContainer>
+        <Maps>
+          <MapWithRoute
+            depart={formValues.depart}
+            arrivee={formValues.arrivee}
+            onRouteCalculated={handleRouteCalculated}
+          />
+        </Maps>
+      </BookingContainer>
+      <Button
+        ref={buttonRef}
+        variant="primary"
+        size="large"
+        disabled={!isFormValid}
+        onClick={() => {
+          if (isFormValid) {
+            navigate('/BookingCar', {
+              state: {
+                bookingDetails: {
+                  ...formValues,
+                  vehicule: formValues.vehicule || 'berline',
+                },
+                distance: routeInfo.distance,
+              },
+            });
+          }
+        }}
+        type="button"
+      >
+        Choisir un véhicule
+      </Button>
+    </Section>
+  );
 }
 
 const H2 = styled.h2`
@@ -139,6 +133,7 @@ const H2 = styled.h2`
 
 const Section = styled.section`
     position: relative;
+    /* z-index: 1; Supprimé car potentiellement conflictuel avec d'autres pages */
     box-sizing: border-box;
     max-width: 1440px;
     width: 100%;
@@ -150,7 +145,7 @@ const Section = styled.section`
     display: flex;
     flex-direction: column; 
     justify-content: center;
-    align-items: center;
+    align-items: center; 
     gap: 2rem;
     color: white;
     margin-top: -150px;
