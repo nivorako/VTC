@@ -5,8 +5,9 @@ import Contact from '../pages/Contact'
 import Services from '../pages/Services'
 import Mentions from '../pages/Mentions'
 import MainLayout from '../layout/MainLayout'
-import Booking from '../pages/Booking'
-import BookingCar from '../pages/BookingCar'
+import Booking from '../pages/Booking';
+import BookingCar from '../pages/BookingCar';
+import UserContact from '../pages/UserContact';
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
       {
         path: '/bookingCar',
         element: <BookingCar />
+      },
+      {
+        path: '/user-contact',
+        element: <UserContact />
       }
     ]
   }

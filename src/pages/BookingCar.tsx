@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import styled from "styled-components";
 import { theme } from "../styles/theme";
 import { Button } from "../components/Button";
@@ -50,21 +50,22 @@ export default function BookingCar() {
     
     return (
         <Section>
-            <h1 style={{color: "white"}}>RESERVEZ UN VTC MAINTENANT</h1>
+            <StyledH1>RESERVEZ UN VTC MAINTENANT</StyledH1>
             <BookingCarContainer>
-                <BookingCarDetails
-                    bookingInfo={formValues}
-                    distance={distance}
-                />
+                <BookingCarDetailsContainer>
+                    <BookingCarDetails
+                        bookingInfo={formValues}
+                        distance={distance}
+                    />
+                </BookingCarDetailsContainer>
                 <CarChoices>
-                    <Car style={{border: selectedCar === "berline" ? `20px solid ${theme.colors.primaryDark}` : "none"}}>
+                    <Car style={{border: selectedCar === "berline" ? `2px solid ${theme.colors.primaryDark}` : "2px solid transparent"}}>
                         <CarImage src={Berline} alt="berline" />
                         <CarInfos>
                             Infos
                         </CarInfos>
                         <CarChoice>
                             <Button
-                                to="/bookingCar"
                                 variant="primary"
                                 size="medium"
                                 onClick={() => {handleSelectCar("berline")}}
@@ -73,14 +74,13 @@ export default function BookingCar() {
                             </Button>
                         </CarChoice>
                     </Car>  
-                    <Car style={{border: selectedCar === "berlineLux" ? `20px solid ${theme.colors.primaryDark}` : "none"}}>
+                    <Car style={{border: selectedCar === "berlineLux" ? `2px solid ${theme.colors.primaryDark}` : "2px solid transparent"}}>
                         <CarImage src={BerlineLux} alt="berlineLux" />
                         <CarInfos>
                             infos
                         </CarInfos>
                         <CarChoice>
                             <Button
-                                to="/bookingCar"
                                 variant="primary"
                                 size="medium"
                                 onClick={() => {handleSelectCar("berlineLux")}}
@@ -89,14 +89,13 @@ export default function BookingCar() {
                             </Button>
                         </CarChoice>
                     </Car>  
-                    <Car style={{border: selectedCar === "van" ? `20px solid ${theme.colors.primaryDark}` : "none"}}>
+                    <Car style={{border: selectedCar === "van" ? `2px solid ${theme.colors.primaryDark}` : "2px solid transparent"}}>
                         <CarImage src={Van} alt="van" />
                         <CarInfos>
                             infos
                         </CarInfos>
                         <CarChoice>
                             <Button
-                                to="/bookingCar"
                                 variant="primary"
                                 size="medium"
                                 onClick={() => {handleSelectCar("van")}}
@@ -105,56 +104,93 @@ export default function BookingCar() {
                             </Button>
                         </CarChoice>
                     </Car>  
-                    
                 </CarChoices>
             </BookingCarContainer>
-            
+            <ButtonsContainer>
+                <Link to="/booking" state={{ bookingDetails: formValues, distance }}>
+                    <Button variant="secondary" size="medium">
+                        Modifier les détails
+                    </Button>
+                </Link>
+                <Link to="/user-contact" state={{ bookingDetails: formValues, distance }}>
+                    <Button variant="primary" size="medium" disabled={!selectedCar}>
+                        Saisir les coordonnées
+                    </Button>
+                </Link>
+            </ButtonsContainer>
         </Section>
     )
 }
+
+const StyledH1 = styled.h1`
+    color: white;
+    margin-top: 100px; /* Similaire au H2 de Booking.tsx */
+    margin-bottom: 2rem; /* Espace sous le titre */
+    z-index: 2;
+    text-align: center;
+    @media (max-width: 480px) {
+        margin-top: 100px; /* Ajustement pour les très petits écrans */
+        font-size: 1.5rem; /* Ajustement de la taille pour mobile */
+    }
+`;
 
 const Section = styled.section`
     width: 100%;
     max-width: 1440px;
     box-sizing: border-box;
-    height: 100%;
+    min-height: 100vh; /* Assure que la section prend au moins toute la hauteur de la vue */
     display: flex;
-    justify-content: center;
+    /* justify-content: center; Retiré pour permettre au titre d'être en haut */
     flex-direction: column;
     align-items: center;
-    padding: 0 1rem;
+    padding: 0 1rem 2rem; /* Ajout de padding en bas */
     background: ${theme.colors.background};
+    position: relative; /* Pour le z-index du titre si besoin */
+
+    /* Similaire au ::before de Booking.tsx pour l'overlay si nécessaire */
+    /* &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5); 
+        z-index: 1;
+  } */
 `
 
 const BookingCarContainer = styled.div`
     width: 100%;
-    height: 100%;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: stretch; /* Modified */
     gap: 1rem;
+    flex: 1;
+    min-height: 0; /* Prevents flexbox overflow */
+    margin-bottom: 1rem;
     @media (max-width: 768px) {
         flex-direction: column;
-        height: 90%;
+        /* Le gap est remplacé par une marge sur CarChoices pour un meilleur contrôle */
     }
 `
 
-// const BookingCarDetails = styled.div`
-//     width: 30%;
-//     height: 600px;
-//     display: flex;
-//     justify-content: center;
-//     align-items: center;
-//     background: white;
-//     @media (max-width: 768px) {
-//         width: 100%;
-//         height: 40vh;
-//         min-height: 200px;
-//     }
-// `
+const BookingCarDetailsContainer = styled.div`
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    
+    @media (max-width: 1024px) {
+        width: 40%;
+    }
+    @media (max-width: 768px) {
+        width: 100%;
+        order: 2;
+    }
+`
+
 const CarChoices = styled.div`
     width: 70%;
-    height: 600px;
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -163,15 +199,45 @@ const CarChoices = styled.div`
     background: white;
     padding: 1rem;
     box-sizing: border-box;
-    overflow: hidden; // Pour éviter le débordement
+    border-radius: 10px;
+
     @media (max-width: 1024px) {
-        
+        width: 60%;
     }
     @media (max-width: 768px) {
-        height: 50vh; 
         width: 100%;
-        min-height: 250px;    }
+        order: 1;
+        margin-bottom: 1rem; /* Ajout d'une marge pour l'espacement */
+    }
 `
+const ButtonsContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1rem 0;
+    gap: 1rem;
+
+    a {
+        text-decoration: none;
+        flex: 1;
+        display: flex;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: center;
+
+        & > a {
+            width: 100%;
+            max-width: 400px;
+        }
+    }
+`
+
 const Car = styled.div` 
     width: 100%;
     flex: 1 1 auto; // Permet à chaque Car de prendre autant d'espace que possible
@@ -183,44 +249,35 @@ const Car = styled.div`
     padding: 1rem;
     box-sizing: border-box; 
     overflow: hidden; // Pour éviter le débordement
+    transition: border-color 0.3s ease;
 
     @media (max-width: 768px) {
-        height: 16.66%; /* 50vh / 3 = 16.66% */
-        min-height: 83px;
+        min-height: 120px;
     }
 `
 
 const CarImage = styled.img`
     width: 60%;
-    height: 50%;
+    height: 100%;
     object-fit: contain;
-    max-width: 100%;
-    display: block;
-    margin: 0 auto;
     @media (max-width: 1024px) {
-        width: 70%; /* Un peu plus grand au-dessus de 1024px */
-        height: 60%;
+        width: 50%;
     }
     @media (max-width: 768px) {
-        width: 90%; /* Un peu plus grand sur mobile */
-        height: 60%;
+        width: 40%;
     }
 `
 
 const CarInfos = styled.div`
-    width: 100%;
+    width: 20%;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    
-    @media (max-width: 768px) {
-        
-    }
 `
 
 const CarChoice = styled.div`
-    width: 100%;
+    width: 20%;
     height: 100%;
     display: flex;
     justify-content: center;

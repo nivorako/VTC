@@ -6,23 +6,29 @@ interface BookingCarDetailsProps {
   distance: string;
 }
 
-const BookingDetailsContainer = styled.div`
-    width: 30%;
-    height: 600px;
+const DetailsWrapper = styled.div`
+    width: 100%;
+    height: 100%; /* Prend toute la hauteur de son parent */
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     background: white;
-    padding: 1rem;
+    padding: 1.5rem;
+    border-radius: 10px; /* Coins arrondis */
+    box-sizing: border-box;
+
+    h2 {
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+    }
+
     @media (max-width: 768px) {
-        width: 100%;
-        height: 40vh;
-        min-height: 40vh;
+        height: auto; /* La hauteur s'adapte au contenu */
+    }
 `;
 
 const DetailsSection = styled.div`
-  margin-bottom: 1.5rem;
+  flex-grow: 1; /* Permet à cette section de prendre l'espace disponible */
 `;
 
 const DetailItem = styled.div`
@@ -68,57 +74,57 @@ const BookingCarDetails: React.FC<BookingCarDetailsProps> = ({ bookingInfo, dist
   }
   console.log("Bookinginfo", bookingInfo);
   
-    return (
-        <BookingDetailsContainer>
-        <h2>Détails de la Réservation</h2>
-        
-        <DetailsSection>
-            <DetailItem>
-            <DetailLabel>Date:</DetailLabel>
-            {bookingInfo.date}
-            </DetailItem>
-            
-            <DetailItem>
-            <DetailLabel>Heure:</DetailLabel>
-            {bookingInfo.heure}
-            </DetailItem>
-            
-            <DetailItem>
-            <DetailLabel>Lieu de départ:</DetailLabel>
-            {bookingInfo.depart}
-            </DetailItem>
-            
-            <DetailItem>
-            <DetailLabel>Destination:</DetailLabel>
-            {bookingInfo.arrivee}
-            </DetailItem>
-            
-            <DetailItem>
-            <DetailLabel>Type de trajet:</DetailLabel>
-            {bookingInfo.typeTrajet}
-            </DetailItem>
-            
-            <DetailItem>
-            <DetailLabel>Passagers:</DetailLabel>
-            {bookingInfo.passagersAdultes} Adultes, {bookingInfo.passagersEnfants} Enfants
-            </DetailItem>
-            
-            <DetailItem>
-            <DetailLabel>Véhicule:</DetailLabel>
-            {bookingInfo.vehicule || 'Non sélectionné'}
-            </DetailItem>
+        return (
+        <DetailsWrapper>
+          <h2>Détails de la Réservation</h2>
+          
+          <DetailsSection>
+              <DetailItem>
+              <DetailLabel>Date:</DetailLabel>
+              {bookingInfo.date}
+              </DetailItem>
+              
+              <DetailItem>
+              <DetailLabel>Heure:</DetailLabel>
+              {bookingInfo.heure}
+              </DetailItem>
+              
+              <DetailItem>
+              <DetailLabel>Lieu de départ:</DetailLabel>
+              {bookingInfo.depart}
+              </DetailItem>
+              
+              <DetailItem>
+              <DetailLabel>Destination:</DetailLabel>
+              {bookingInfo.arrivee}
+              </DetailItem>
+              
+              <DetailItem>
+              <DetailLabel>Type de trajet:</DetailLabel>
+              {bookingInfo.typeTrajet}
+              </DetailItem>
+              
+              <DetailItem>
+              <DetailLabel>Passagers:</DetailLabel>
+              {bookingInfo.passagersAdultes} Adultes, {bookingInfo.passagersEnfants} Enfants
+              </DetailItem>
+              
+              <DetailItem>
+              <DetailLabel>Véhicule:</DetailLabel>
+              {bookingInfo.vehicule || 'Non sélectionné'}
+              </DetailItem>
 
-            <DetailItem>
-            <DetailLabel>Distance parcourue:</DetailLabel>
-            {distance || 'N/A'}
-            </DetailItem>
-        </DetailsSection>
+              <DetailItem>
+              <DetailLabel>Distance parcourue:</DetailLabel>
+              {distance || 'N/A'}
+              </DetailItem>
+          </DetailsSection>
 
-        <PriceSection>
-            <span>TOTAL</span>
-            <span>{totalPrice.toFixed(2)} €</span>
+          <PriceSection>
+              <span>TOTAL</span>
+              <span>{totalPrice.toFixed(2)} €</span>
         </PriceSection>
-        </BookingDetailsContainer>
+        </DetailsWrapper>
     );
 };
 
