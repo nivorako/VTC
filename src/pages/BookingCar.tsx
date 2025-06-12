@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { theme } from "../styles/theme";
 import { Button } from "../components/Button";
+import BookingCarDetails from "../components/BookingCarDetails";
+import type { BookingInfo } from "../types/booking";
 
 const Berline = new URL("/src/assets/berline.webp", import.meta.url).href;
 const BerlineLux = new URL("/src/assets/berlineLux.webp", import.meta.url).href;
@@ -9,16 +12,50 @@ const Van = new URL("/src/assets/van.webp", import.meta.url).href;
 
 
 export default function BookingCar() {
+    const location = useLocation();
     const [selectedCar, setSelectedCar] = useState<string | null>(null);
-    console.log(selectedCar);
+    const [distance, setDistance] = useState("");
+    const [formValues, setFormValues] = useState<BookingInfo>({
+        date: "",
+        heure: "",
+        depart: "",
+        arrivee: "",
+        typeTrajet: "",
+        passagersAdultes: 1,
+        passagersEnfants: 0,
+        vehicule: null,
+    });
+
+    useEffect(() => {
+        if (location.state) {
+            const { bookingDetails, distance } = location.state as { bookingDetails: BookingInfo, distance: string };
+            setFormValues(bookingDetails);
+            setDistance(distance);
+            if (bookingDetails.vehicule) {
+                setSelectedCar(bookingDetails.vehicule);
+            }
+        }
+    }, [location.state]);
+
+
+
+    const handleSelectCar = (carType: string) => {
+        setSelectedCar(carType);
+        setFormValues(prev => ({
+            ...prev,
+            vehicule: carType
+        }));
+    };
+
     
     return (
         <Section>
             <h1 style={{color: "white"}}>RESERVEZ UN VTC MAINTENANT</h1>
             <BookingCarContainer>
-                <BookingCarDetails>
-                   Booking CarDetails 
-                </BookingCarDetails>
+                <BookingCarDetails
+                    bookingInfo={formValues}
+                    distance={distance}
+                />
                 <CarChoices>
                     <Car style={{border: selectedCar === "berline" ? `20px solid ${theme.colors.primaryDark}` : "none"}}>
                         <CarImage src={Berline} alt="berline" />
@@ -30,13 +67,13 @@ export default function BookingCar() {
                                 to="/bookingCar"
                                 variant="primary"
                                 size="medium"
-                                onClick={() => {setSelectedCar("berline")}}
+                                onClick={() => {handleSelectCar("berline")}}
                             >
                                 Choisir
                             </Button>
                         </CarChoice>
                     </Car>  
-                    <Car style={{border: selectedCar === "BerlineLux" ? `20px solid ${theme.colors.primaryDark}` : "none"}}>
+                    <Car style={{border: selectedCar === "berlineLux" ? `20px solid ${theme.colors.primaryDark}` : "none"}}>
                         <CarImage src={BerlineLux} alt="berlineLux" />
                         <CarInfos>
                             infos
@@ -46,13 +83,13 @@ export default function BookingCar() {
                                 to="/bookingCar"
                                 variant="primary"
                                 size="medium"
-                                onClick={() => {setSelectedCar("BerlineLux")}}
+                                onClick={() => {handleSelectCar("berlineLux")}}
                             >
                                 Choisir
                             </Button>
                         </CarChoice>
                     </Car>  
-                    <Car style={{border: selectedCar === "Van" ? `20px solid ${theme.colors.primaryDark}` : "none"}}>
+                    <Car style={{border: selectedCar === "van" ? `20px solid ${theme.colors.primaryDark}` : "none"}}>
                         <CarImage src={Van} alt="van" />
                         <CarInfos>
                             infos
@@ -62,7 +99,7 @@ export default function BookingCar() {
                                 to="/bookingCar"
                                 variant="primary"
                                 size="medium"
-                                onClick={() => {setSelectedCar("Van")}}
+                                onClick={() => {handleSelectCar("van")}}
                             >
                                 Choisir
                             </Button>
@@ -102,19 +139,19 @@ const BookingCarContainer = styled.div`
     }
 `
 
-const BookingCarDetails = styled.div`
-    width: 30%;
-    height: 600px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: white;
-    @media (max-width: 768px) {
-        width: 100%;
-        height: 40vh;
-        min-height: 200px;
-    }
-`
+// const BookingCarDetails = styled.div`
+//     width: 30%;
+//     height: 600px;
+//     display: flex;
+//     justify-content: center;
+//     align-items: center;
+//     background: white;
+//     @media (max-width: 768px) {
+//         width: 100%;
+//         height: 40vh;
+//         min-height: 200px;
+//     }
+// `
 const CarChoices = styled.div`
     width: 70%;
     height: 600px;

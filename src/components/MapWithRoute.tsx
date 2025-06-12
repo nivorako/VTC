@@ -47,9 +47,10 @@ const InfoValue = styled.div`
 interface MapWithRouteProps {
   depart: string;
   arrivee: string;
+  onRouteCalculated: (routeData: { distance: string; duration: string }) => void;
 }
 
-const MapWithRoute: React.FC<MapWithRouteProps> = ({ depart, arrivee }) => {
+const MapWithRoute: React.FC<MapWithRouteProps> = ({ depart, arrivee, onRouteCalculated }) => {
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
@@ -71,15 +72,18 @@ const MapWithRoute: React.FC<MapWithRouteProps> = ({ depart, arrivee }) => {
           if (status === "OK" && result) {
             setDirections(result);
             const leg = result.routes[0].legs[0];
-            setDistance(leg.distance?.text || "");
-            setDuration(leg.duration?.text || "");
+            const distanceText = leg.distance?.text || "";
+            const durationText = leg.duration?.text || "";
+            setDistance(distanceText);
+            setDuration(durationText);
             setStartAddress(leg.start_address || "");
             setEndAddress(leg.end_address || "");
+            onRouteCalculated({ distance: distanceText, duration: durationText });
           }
         }
       );
     }
-  }, [depart, arrivee]);
+  }, [depart, arrivee, onRouteCalculated]);
 
   return (
     <MapContainer>

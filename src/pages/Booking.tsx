@@ -5,15 +5,19 @@ import BookingForm from "../components/BookingForm";
 import MapWithRoute from "../components/MapWithRoute";
 import { Button } from "../components/Button";
 import { useRef } from "react";
+import type { BookingInfo } from "../types/booking";
+import { useNavigate } from "react-router-dom";
 
 const Booking = () => {
+  const navigate = useNavigate();
 
   const buttonRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
   const [isValid, setIsValid] = useState(false);
+  const [routeInfo, setRouteInfo] = useState({ distance: "", duration: "" });
 
   const [isButtonMounted, setIsButtonMounted] = useState(false);
 
-  const [formValues, setFormValues] = useState({
+  const [formValues, setFormValues] = useState<BookingInfo>({
     date: "",
     heure: "",
     depart: "",
@@ -21,10 +25,18 @@ const Booking = () => {
     typeTrajet: "",
     passagersAdultes: 1,
     passagersEnfants: 0,
+    vehicule: null,
   });
 
-  const handleFormChange = (values: any) => {
-    setFormValues(values);
+  const handleFormChange = (values: Omit<BookingInfo, 'vehicule'>) => {
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      ...values,
+    }));
+  };
+
+  const handleRouteCalculated = (routeData: { distance: string; duration: string }) => {
+    setRouteInfo(routeData);
   };
 
   useEffect(() => {
@@ -73,8 +85,6 @@ const Booking = () => {
   }
   }, [formValues, isButtonMounted]);
 
-  const handleSubmit = () => {};
-
   return (
    
       <Section>
@@ -89,20 +99,25 @@ const Booking = () => {
                 <MapWithRoute 
                   depart={formValues.depart} 
                   arrivee={formValues.arrivee} 
+                  onRouteCalculated={handleRouteCalculated}
                 />
             </Maps>
         </BookingContainer>       
           <Button
                 ref={buttonRef}
-                to="/BookingCar"
+
                 variant="primary"
                 size="large"
                 disabled={!isValid}
-                onClick={(e) => {
-                  if (!isValid) {
-                    e?.preventDefault();
+                onClick={() => {
+                  if (isValid) {
+                    navigate('/BookingCar', { 
+                      state: { 
+                        bookingDetails: formValues, 
+                        distance: routeInfo.distance 
+                      }
+                    });
                   }
-                  handleSubmit();
                 }}
                 type="button"
               

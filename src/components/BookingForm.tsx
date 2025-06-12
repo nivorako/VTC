@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
-import { Formik, Field, Form, ErrorMessage } from "formik";
+import { Formik, Field, Form, ErrorMessage, useFormikContext } from "formik";
 import * as Yup from "yup";
 import styled from 'styled-components';
+
+import type { BookingInfo } from "../types/booking";
+
+// Define the type for the form values based on BookingInfo, omitting 'vehicule'
+export type FormikValues = Omit<BookingInfo, 'vehicule'>;
 
 const ReservationSchema = Yup.object().shape({
   date: Yup.date().required("Date obligatoire"),
@@ -105,15 +110,22 @@ const ErrorText = styled.div`
   margin-top: 0.25rem;
 `;
 
-// ... (les imports et styles restent les mêmes)
+// Helper component to observe Formik's values and sync them with the parent state
+const FormikObserver: React.FC<{ setFormValues: (values: FormikValues) => void }> = ({ setFormValues }) => {
+  const { values } = useFormikContext<FormikValues>();
+  useEffect(() => {
+    setFormValues(values);
+  }, [values, setFormValues]);
 
-type BookingFormProps = {
- 
-  onFormChange: (values: any) => void;  // Nouvelle prop
+  return null; // This component renders nothing
 };
 
-const BookingForm = ({ onFormChange }: BookingFormProps) => {
-  const [formValues, setFormValues] = useState({
+type BookingFormProps = {
+  onFormChange: (values: FormikValues) => void;
+};
+
+const BookingForm: React.FC<BookingFormProps> = ({ onFormChange }) => {
+  const initialValues: FormikValues = {
     date: "",
     heure: "",
     depart: "",
@@ -121,9 +133,10 @@ const BookingForm = ({ onFormChange }: BookingFormProps) => {
     typeTrajet: "",
     passagersAdultes: 1,
     passagersEnfants: 0,
-  });
+  };
 
-  // Effet pour déclencher les mises à jour
+  const [formValues, setFormValues] = useState(initialValues);
+
   useEffect(() => {
     onFormChange(formValues);
   }, [formValues, onFormChange]);
@@ -135,16 +148,11 @@ const BookingForm = ({ onFormChange }: BookingFormProps) => {
         validationSchema={ReservationSchema}
         onSubmit={() => {}}  // On garde la méthode vide car on ne soumet plus le formulaire
       >
-        {({ values}) => {
-          // Mise à jour des valeurs du formulaire
-          useEffect(() => {
-            setFormValues(values);
-          
-          }, [values]);
-
+        {() => {
           return (
             <StyledForm>
-              {/* Le reste du formulaire reste inchangé */}
+              <FormikObserver setFormValues={setFormValues} />
+
               <Section>
                 <SectionTitle>Détails du trajet</SectionTitle>
                 <Row>
