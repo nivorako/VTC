@@ -8,6 +8,7 @@ import MainLayout from '../layout/MainLayout'
 import Booking from '../pages/Booking';
 import BookingCar from '../pages/BookingCar';
 import UserContact from '../pages/UserContact';
+import UserPayment from '../pages/UserPayment';
 
 export const router = createBrowserRouter([
   {
@@ -40,6 +41,10 @@ export const router = createBrowserRouter([
       {
         path: '/user-contact',
         element: <UserContact />
+      },
+      {
+        path: '/user-payment',
+        element: <UserPayment />
       }
     ]
   }

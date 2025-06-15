@@ -151,7 +151,7 @@ export default function UserContact() {
                             </PaymentIconsContainer>
                         </PaymentMethodContainer>
 
-                        <Button variant="primary" size="large" type="submit">
+                        <Button to="/user-payment" variant="primary" size="large" type="submit">
                             Confirmer la réservation
                         </Button>
                     </Form>
