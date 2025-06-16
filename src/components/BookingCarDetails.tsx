@@ -1,9 +1,12 @@
 import styled from 'styled-components';
 import type { BookingInfo } from '../types/booking';
+import { useEffect } from 'react';
 
 interface BookingCarDetailsProps {
   bookingInfo: BookingInfo;
   distance: string;
+  onPriceCalculated?: (price: number) => void;
+  totalPrice?: number;
 }
 
 const DetailsWrapper = styled.div`
@@ -49,7 +52,16 @@ const PriceSection = styled.div`
   align-items: center;
 `;
 
-const BookingCarDetails: React.FC<BookingCarDetailsProps> = ({ bookingInfo, distance }) => {
+  /**
+   * BookingCarDetails component displays the details of a booking,
+   * including date, time, departure and arrival, type of trip, number of passengers,
+   * vehicle and distance.
+   * It also calculates the total price based on the distance and the type of vehicle.
+   * The price is displayed at the bottom of the component.
+   * @param {BookingCarDetailsProps} props - The props of the component.
+   * @returns {JSX.Element} The component.
+   */
+const BookingCarDetails: React.FC<BookingCarDetailsProps> = ({ bookingInfo, distance, onPriceCalculated }) => {
   // Extraire la distance en chiffres
   const distanceNumber = parseFloat(distance.replace(/[^\d.]/g, ''));
 
@@ -72,7 +84,12 @@ const BookingCarDetails: React.FC<BookingCarDetailsProps> = ({ bookingInfo, dist
     // Ensure totalPrice is 0 if distance is not a number or vehicle/price is not set
     totalPrice = 0;
   }
-  console.log("Bookinginfo", bookingInfo);
+
+  useEffect(() => {
+    if (onPriceCalculated) {
+      onPriceCalculated(totalPrice);
+    }
+  }, [totalPrice, onPriceCalculated]);
   
         return (
         <DetailsWrapper>

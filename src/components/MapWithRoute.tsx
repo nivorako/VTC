@@ -134,7 +134,7 @@ const MapWithRoute: React.FC<MapWithRouteProps> = ({ depart, arrivee, onRouteCal
             <InfoLabel>Durée estimée</InfoLabel>
             <InfoValue>{duration || "0h 00mn"}</InfoValue>
           </InfoItem>
-        </InfoBox>
+      </InfoBox>
     </MapContainer>
   );
 };

@@ -10,7 +10,7 @@ import { FaCcMastercard, FaCcVisa, FaCcAmex, FaCheckCircle } from 'react-icons/f
 export default function UserContact() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { bookingDetails, distance } = location.state as { bookingDetails: BookingInfo, distance: string };
+    const { bookingDetails, distance, totalPrice } = location.state as { bookingDetails: BookingInfo, distance: string, totalPrice: number };
 
     const [contactInfo, setContactInfo] = useState({
         firstName: '',
@@ -56,8 +56,7 @@ export default function UserContact() {
             ...(showBillingAddress && { billingAddress }),
         };
         console.log('Booking confirmed:', submissionData);
-        alert('Votre réservation est confirmée !');
-        navigate('/'); // Redirige vers la page d'accueil après confirmation
+        navigate('/user-payment', { state: { bookingDetails, contactInfo, paymentMethod: selectedPaymentMethod, billingAddress, totalPrice } }); // Redirige vers la page UserPayment
     };
 
     return (
@@ -65,7 +64,7 @@ export default function UserContact() {
             <h1 style={{ color: 'white' }}>VOS COORDONNÉES</h1>
             <Container>
                 <BookingCarDetailsContainer>
-                    <BookingCarDetails bookingInfo={bookingDetails} distance={distance} />
+                    <BookingCarDetails bookingInfo={bookingDetails} distance={distance} totalPrice={totalPrice} />
                 </BookingCarDetailsContainer>
                 <ContactFormContainer>
                     <Form onSubmit={handleSubmit}>
@@ -151,7 +150,7 @@ export default function UserContact() {
                             </PaymentIconsContainer>
                         </PaymentMethodContainer>
 
-                        <Button to="/user-payment" variant="primary" size="large" type="submit">
+                        <Button onClick={handleSubmit} variant="primary" size="large" type="submit">
                             Confirmer la réservation
                         </Button>
                     </Form>

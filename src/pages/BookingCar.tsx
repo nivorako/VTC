@@ -10,7 +10,6 @@ const Berline = new URL("/src/assets/berline.webp", import.meta.url).href;
 const BerlineLux = new URL("/src/assets/berlineLux.webp", import.meta.url).href;
 const Van = new URL("/src/assets/van.webp", import.meta.url).href;
 
-
 export default function BookingCar() {
     const location = useLocation();
     const [selectedCar, setSelectedCar] = useState<string | null>(null);
@@ -25,6 +24,7 @@ export default function BookingCar() {
         passagersEnfants: 0,
         vehicule: null,
     });
+    const [totalPrice, setTotalPrice] = useState<number>(0);
 
     useEffect(() => {
         if (location.state) {
@@ -37,8 +37,6 @@ export default function BookingCar() {
         }
     }, [location.state]);
 
-
-
     const handleSelectCar = (carType: string) => {
         setSelectedCar(carType);
         setFormValues(prev => ({
@@ -47,7 +45,10 @@ export default function BookingCar() {
         }));
     };
 
-    
+    const handlePriceCalculated = (price: number) => {
+        setTotalPrice(price);
+    };
+
     return (
         <Section>
             <StyledH1>RESERVEZ UN VTC MAINTENANT</StyledH1>
@@ -56,6 +57,7 @@ export default function BookingCar() {
                     <BookingCarDetails
                         bookingInfo={formValues}
                         distance={distance}
+                        onPriceCalculated={handlePriceCalculated}
                     />
                 </BookingCarDetailsContainer>
                 <CarChoices>
@@ -112,7 +114,7 @@ export default function BookingCar() {
                         Modifier les détails
                     </Button>
                 </Link>
-                <Link to="/user-contact" state={{ bookingDetails: formValues, distance }}>
+                <Link to="/user-contact" state={{ bookingDetails: formValues, distance, totalPrice }}>
                     <Button variant="primary" size="medium" disabled={!selectedCar}>
                         Saisir les coordonnées
                     </Button>
