@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import {
   Elements,
-  CardElement,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
   useStripe,
   useElements
 } from '@stripe/react-stripe-js';
@@ -24,7 +26,7 @@ const PaymentForm = () => {
   const location = useLocation();
   const { totalPrice } = location.state as { totalPrice: number };
 
-  console.log('total price', totalPrice);
+  //console.log('total price', totalPrice);
   
   // Fonction pour annuler le paiement
   const handleCancel = () => {
@@ -70,9 +72,9 @@ const PaymentForm = () => {
       }
 
       // 2. Confirmer le paiement avec les détails de la carte
-      const cardElement = elements.getElement(CardElement);
+      const cardNumberElement = elements.getElement(CardNumberElement);
       
-      if (!cardElement) {
+      if (!cardNumberElement) {
         throw new Error('Élément de carte non trouvé');
       }
 
@@ -80,7 +82,7 @@ const PaymentForm = () => {
         data.clientSecret,
         {
           payment_method: {
-            card: cardElement,
+            card: cardNumberElement,
             billing_details: {
               name: 'Nom du client', // Idéalement récupéré d'un formulaire
             },
@@ -152,9 +154,9 @@ const PaymentForm = () => {
 
           <form onSubmit={handleSubmit}>
             <FormGroup>
-              <Label>Détails de la carte</Label>
+              <Label>Numéro de carte</Label>
               <CardElementContainer>
-                <CardElement 
+                <CardNumberElement 
                   options={{
                     style: {
                       base: {
@@ -172,6 +174,52 @@ const PaymentForm = () => {
                 />
               </CardElementContainer>
             </FormGroup>
+            
+            <FormRow>
+              <FormGroup flex="1">
+                <Label>Date d'expiration</Label>
+                <CardElementContainer>
+                  <CardExpiryElement 
+                    options={{
+                      style: {
+                        base: {
+                          fontSize: '16px',
+                          color: '#424770',
+                          '::placeholder': {
+                            color: '#aab7c4',
+                          },
+                        },
+                        invalid: {
+                          color: '#9e2146',
+                        },
+                      },
+                    }}
+                  />
+                </CardElementContainer>
+              </FormGroup>
+              
+              <FormGroup flex="1">
+                <Label>Code de sécurité (CVC)</Label>
+                <CardElementContainer>
+                  <CardCvcElement 
+                    options={{
+                      style: {
+                        base: {
+                          fontSize: '16px',
+                          color: '#424770',
+                          '::placeholder': {
+                            color: '#aab7c4',
+                          },
+                        },
+                        invalid: {
+                          color: '#9e2146',
+                        },
+                      },
+                    }}
+                  />
+                </CardElementContainer>
+              </FormGroup>
+            </FormRow>
 
             {error && <ErrorMessage>{error}</ErrorMessage>}
 
@@ -222,8 +270,9 @@ const FormContainer = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
-const FormGroup = styled.div`
+const FormGroup = styled.div<{ flex?: string }>`
   margin-bottom: 1.5rem;
+  flex: ${props => props.flex || 'auto'};
 `;
 
 const Label = styled.label`
@@ -238,6 +287,16 @@ const CardElementContainer = styled.div`
   border-radius: 4px;
   padding: 1rem;
   background-color: #f8f9fa;
+`;
+
+const FormRow = styled.div`
+  display: flex;
+  gap: 1rem;
+  
+  @media (max-width: 576px) {
+    flex-direction: column;
+    gap: 0;
+  }
 `;
 
 const ButtonGroup = styled.div`
