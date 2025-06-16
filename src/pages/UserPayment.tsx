@@ -55,9 +55,9 @@ const PaymentForm = () => {
     try {
       // 1. Créer une intention de paiement côté serveur
       // Utiliser une URL relative ou une URL basée sur l'environnement
-      const apiUrl = process.env.NODE_ENV === 'production' 
-        ? '/api/create-payment-intent'  // URL relative en production
-        : 'http://localhost:4000/create-payment-intent'; // URL locale en développement
+      const apiUrl = window.location.hostname === 'localhost'
+        ? 'http://localhost:4000/create-payment-intent' // URL locale en développement
+        : '/api/create-payment-intent';  // URL relative en production
       
       const response = await fetch(apiUrl, {
         method: 'POST',
