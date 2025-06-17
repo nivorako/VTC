@@ -54,62 +54,78 @@ const PaymentForm = () => {
 
     try {
       // 1. Créer une intention de paiement côté serveur
-      // Utiliser une URL relative ou une URL basée sur l'environnement
-      const apiUrl = window.location.hostname === 'localhost'
+      // Utiliser une URL basée sur l'environnement
+      const apiUrl = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost'
         ? 'http://localhost:4000/create-payment-intent' // URL locale en développement
-        : '/api/create-payment-intent';  // URL relative en production
+        : 'https://vtc-server.onrender.com/create-payment-intent';  // URL du backend déployé
       
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: Math.round(totalPrice * 100), // Arrondir pour éviter les erreurs de précision
-          currency: 'eur',
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Une erreur est survenue lors de la création de l\'intention de paiement');
-      }
-
-      // 2. Confirmer le paiement avec les détails de la carte
-      const cardNumberElement = elements.getElement(CardNumberElement);
+      console.log('Envoi de la requête à:', apiUrl);
       
-      if (!cardNumberElement) {
-        throw new Error('Élément de carte non trouvé');
-      }
-
-      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
-        data.clientSecret,
-        {
-          payment_method: {
-            card: cardNumberElement,
-            billing_details: {
-              name: 'Nom du client', // Idéalement récupéré d'un formulaire
-            },
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-        }
-      );
+          body: JSON.stringify({
+            amount: Math.round(totalPrice * 100), // Arrondir pour éviter les erreurs de précision
+            currency: 'eur',
+          }),
+        });
 
-      if (stripeError) {
-        // Gestion spécifique des erreurs Stripe
-        if (stripeError.type === 'card_error') {
-          throw new Error(`Erreur de carte: ${stripeError.message}`);
-        } else if (stripeError.type === 'validation_error') {
-          throw new Error(`Erreur de validation: ${stripeError.message}`);
+        // Vérifier le type de contenu de la réponse
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          // Si la réponse n'est pas JSON, récupérer le texte brut pour le débogage
+          const textResponse = await response.text();
+          console.error('Réponse non-JSON reçue:', textResponse);
+          throw new Error(`Réponse non-JSON reçue du serveur: ${textResponse.substring(0, 100)}...`);
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Une erreur est survenue lors de la création de l\'intention de paiement');
+        }
+
+        // 2. Confirmer le paiement avec les détails de la carte
+        const cardNumberElement = elements.getElement(CardNumberElement);
+        
+        if (!cardNumberElement) {
+          throw new Error('Élément de carte non trouvé');
+        }
+
+        const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
+          data.clientSecret,
+          {
+            payment_method: {
+              card: cardNumberElement,
+              billing_details: {
+                name: 'Nom du client', // Idéalement récupéré d'un formulaire
+              },
+            },
+          }
+        );
+
+        if (stripeError) {
+          // Gestion spécifique des erreurs Stripe
+          if (stripeError.type === 'card_error') {
+            throw new Error(`Erreur de carte: ${stripeError.message}`);
+          } else if (stripeError.type === 'validation_error') {
+            throw new Error(`Erreur de validation: ${stripeError.message}`);
+          } else {
+            throw new Error(stripeError.message || 'Erreur de paiement');
+          }
+        }
+
+        if (paymentIntent.status === 'succeeded') {
+          setSuccess(true);
         } else {
-          throw new Error(stripeError.message || 'Erreur de paiement');
+          throw new Error(`Statut du paiement: ${paymentIntent.status}`);
         }
-      }
-
-      if (paymentIntent.status === 'succeeded') {
-        setSuccess(true);
-      } else {
-        throw new Error(`Statut du paiement: ${paymentIntent.status}`);
+      } catch (err) {
+        console.error('Erreur lors de la création de l\'intention de paiement:', err);
+        throw err;
       }
     } catch (err: unknown) {
       // Safely handle unknown error type
