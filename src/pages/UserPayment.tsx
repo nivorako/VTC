@@ -10,6 +10,26 @@ import {
 } from '@stripe/react-stripe-js';
 import styled from 'styled-components';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Button } from '../components/Button';
+
+// Interfaces pour les types
+interface PaymentResponse {
+  clientSecret: string;
+  paymentIntentId: string;
+  message?: string; // Optional error message from server
+}
+
+interface PaymentStatusResponse {
+  status: string;
+  receiptUrl?: string;
+}
+
+// interface PaymentFormProps {
+//   totalPrice: number;
+//   rideId?: string;
+//   userId?: string;
+// }
+
 
 // Remplacez par votre clé publique Stripe (clé publiable)
 const stripePromise = loadStripe('pk_test_51RZw5JRkTF6EdgwvRqC30aXrGs7GbAJ4WzHJUMgTR6WynTG6xjKI6KdoDXv52F4HpmcahdRCFIdQkPZf9ZE6cCsH00qKvcqxfe');
@@ -21,12 +41,75 @@ const PaymentForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [cancelled, setCancelled] = useState(false);
+  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const location = useLocation();
-  const { totalPrice } = location.state as { totalPrice: number };
+  console.log('paymentIntentId', paymentIntentId);
 
-  //console.log('total price', totalPrice);
+  const location = useLocation();
+  
+  // Handle the case when no state is provided (e.g., when accessing the page directly)
+  const locationState = location.state as { 
+    totalPrice: number;
+    rideId?: string;
+    userId?: string; 
+  } | null;
+  
+  // If no state is provided, show a message and provide a way to go back
+  if (!locationState) {
+    return (
+      <FormContainer>
+        <h2>Information de paiement manquante</h2>
+        <p>Pour effectuer un paiement, veuillez d'abord sélectionner un trajet.</p>
+        <Button 
+          type="button" 
+          onClick={() => navigate('/')}
+          variant="primary"
+        >
+          Retour à l'accueil
+        </Button>
+      </FormContainer>
+    );
+  }
+  
+  const { totalPrice, rideId, userId } = locationState;
+
+  // Fonction pour vérifier le statut du paiement
+  const checkPaymentStatus = async (paymentIntentId: string) => {
+    try {
+      // Utiliser le proxy configuré dans vite.config.ts
+      const apiUrl = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost'
+        ? `/api/payment-status/${paymentIntentId}` // URL avec proxy en développement
+        : `https://vtc-server.onrender.com/payment-status/${paymentIntentId}`;  // URL du backend déployé
+      
+      const response = await fetch(apiUrl);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erreur lors de la vérification du statut: ${errorText}`);
+      }
+      
+      const data = await response.json() as PaymentStatusResponse;
+      
+      if (data.status === 'succeeded') {
+        setSuccess(true);
+        setLoading(false);
+        if (data.receiptUrl) {
+          setReceiptUrl(data.receiptUrl);
+        }
+      } else if (data.status === 'failed' || data.status === 'canceled') {
+        setError(`Le paiement a échoué (statut: ${data.status})`);
+        setLoading(false);
+      } else {
+        // Statut en attente, vérifier à nouveau dans quelques secondes
+        setTimeout(() => checkPaymentStatus(paymentIntentId), 3000);
+      }
+    } catch (err) {
+      setError(`Erreur lors de la vérification du statut: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
+      setLoading(false);
+    }
+  };
   
   // Fonction pour annuler le paiement
   const handleCancel = () => {
@@ -54,9 +137,9 @@ const PaymentForm = () => {
 
     try {
       // 1. Créer une intention de paiement côté serveur
-      // Utiliser une URL basée sur l'environnement
+      // Utiliser le proxy configuré dans vite.config.ts
       const apiUrl = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost'
-        ? 'http://localhost:4000/create-payment-intent' // URL locale en développement
+        ? '/api/create-payment-intent' // URL avec proxy en développement
         : 'https://vtc-server.onrender.com/create-payment-intent';  // URL du backend déployé
       
       console.log('Envoi de la requête à:', apiUrl);
@@ -70,6 +153,8 @@ const PaymentForm = () => {
           body: JSON.stringify({
             amount: Math.round(totalPrice * 100), // Arrondir pour éviter les erreurs de précision
             currency: 'eur',
+            rideId,
+            userId
           }),
         });
 
@@ -82,11 +167,14 @@ const PaymentForm = () => {
           throw new Error(`Réponse non-JSON reçue du serveur: ${textResponse.substring(0, 100)}...`);
         }
 
-        const data = await response.json();
+        const data = await response.json() as PaymentResponse;
 
         if (!response.ok) {
           throw new Error(data.message || 'Une erreur est survenue lors de la création de l\'intention de paiement');
         }
+
+        // Stocker le paymentIntentId pour vérifier le statut plus tard
+        setPaymentIntentId(data.paymentIntentId);
 
         // 2. Confirmer le paiement avec les détails de la carte
         const cardNumberElement = elements.getElement(CardNumberElement);
@@ -114,65 +202,79 @@ const PaymentForm = () => {
           } else if (stripeError.type === 'validation_error') {
             throw new Error(`Erreur de validation: ${stripeError.message}`);
           } else {
-            throw new Error(stripeError.message || 'Erreur de paiement');
+            throw new Error(`Erreur inattendue: ${stripeError.message}`);
           }
         }
 
-        if (paymentIntent.status === 'succeeded') {
-          setSuccess(true);
+        if (paymentIntent) {
+          // Commencer à vérifier le statut du paiement
+          checkPaymentStatus(paymentIntent.id);
         } else {
-          throw new Error(`Statut du paiement: ${paymentIntent.status}`);
+          // Si nous n'avons pas de paymentIntent mais pas d'erreur non plus,
+          // vérifier le statut avec l'ID que nous avons stocké
+          if (data.paymentIntentId) {
+            checkPaymentStatus(data.paymentIntentId);
+          } else {
+            throw new Error('Impossible de confirmer le paiement');
+          }
         }
-      } catch (err) {
-        console.error('Erreur lors de la création de l\'intention de paiement:', err);
-        throw err;
+      } catch (fetchError) {
+        console.error('Erreur lors de la requête:', fetchError);
+        throw fetchError;
       }
-    } catch (err: unknown) {
-      // Safely handle unknown error type
-      let errorMessage = 'Une erreur est survenue';
-      
-      if (err instanceof Error) {
-        errorMessage = err.message;
-      } else if (typeof err === 'object' && err !== null && 'message' in err) {
-        errorMessage = String((err as { message: unknown }).message);
-      }
-      
-      setError(errorMessage);
-    } finally {
+    } catch (err) {
+      setError(`Erreur: ${err instanceof Error ? err.message : 'Une erreur inconnue est survenue'}`);
       setLoading(false);
     }
   };
 
   return (
     <FormContainer>
-      <h2>Paiement sécurisé</h2>
-      <h3>Total: {totalPrice} €</h3>
-      
       {success ? (
-        <SuccessMessage>
-          <h3>Paiement réussi !</h3>
-          <p>Votre réservation a été confirmée.</p>
-          <Button onClick={() => navigate('/')}>Retour à l'accueil</Button>
-        </SuccessMessage>
+        <>
+          <SuccessMessage>
+            <h3>Paiement réussi!</h3>
+            <p>Votre paiement a été traité avec succès.</p>
+            {receiptUrl && (
+              <p>
+                <a href={receiptUrl} target="_blank" rel="noopener noreferrer">
+                  Voir le reçu
+                </a>
+              </p>
+            )}
+          </SuccessMessage>
+          <ButtonGroup>
+            <Button type="button" onClick={handleBack} variant="primary">
+              Retour à l'accueil
+            </Button>
+          </ButtonGroup>
+        </>
       ) : cancelled ? (
-        <CancelMessage>
-          <h3>Paiement annulé</h3>
-          <p>Vous avez annulé votre paiement.</p>
-          <Button onClick={handleBack}>Retour à la réservation</Button>
-        </CancelMessage>
+        <>
+          <CancelMessage>
+            <h3>Paiement annulé</h3>
+            <p>Vous avez annulé le processus de paiement.</p>
+          </CancelMessage>
+          <ButtonGroup>
+            <Button type="button" onClick={handleBack} variant="primary">
+              Retour à l'accueil
+            </Button>
+          </ButtonGroup>
+        </>
       ) : (
         <>
+          <h2>Paiement sécurisé</h2>
+          <p>Montant à payer: {totalPrice.toFixed(2)} €</p>
+          
           <TestCardsInfo>
-            <h4>Cartes de test Stripe:</h4>
+            <h4>Cartes de test Stripe</h4>
             <ul>
-              <li><strong>Paiement réussi:</strong> 4242 4242 4242 4242</li>
-              <li><strong>Échec (fonds insuffisants):</strong> 4000 0000 0000 9995</li>
-              <li><strong>Échec (carte expirée):</strong> 4000 0000 0000 0069</li>
-              <li><strong>Échec (erreur CVC):</strong> 4000 0000 0000 0127</li>
+              <li><strong>Carte qui réussit:</strong> 4242 4242 4242 4242</li>
+              <li><strong>Carte qui échoue:</strong> 4000 0000 0000 0002</li>
             </ul>
-            <p>Pour toutes les cartes: date future quelconque, CVC: 3 chiffres</p>
+            <p>Utilisez n'importe quelle date future, n'importe quel CVC à 3 chiffres et n'importe quel code postal à 5 chiffres.</p>
           </TestCardsInfo>
-
+          
           <form onSubmit={handleSubmit}>
             <FormGroup>
               <Label>Numéro de carte</Label>
@@ -248,14 +350,14 @@ const PaymentForm = () => {
               <Button 
                 type="submit" 
                 disabled={!stripe || loading}
-                primary
+                variant="primary"
               >
                 {loading ? 'Traitement...' : 'Payer maintenant'}
               </Button>
               <Button 
                 type="button" 
                 onClick={handleCancel}
-                secondary
+                variant="secondary"
               >
                 Annuler le paiement
               </Button>
@@ -326,32 +428,7 @@ const ButtonGroup = styled.div`
   margin-top: 1rem;
 `;
 
-const Button = styled.button<{ primary?: boolean; secondary?: boolean }>`
-  background-color: ${props => 
-    props.secondary ? '#f8f9fa' : 
-    props.primary ? '#5469d4' : '#5469d4'};
-  color: ${props => props.secondary ? '#424770' : 'white'};
-  border: ${props => props.secondary ? '1px solid #e6e6e6' : 'none'};
-  border-radius: 4px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex: ${props => props.secondary ? '0 0 auto' : '1 0 auto'};
 
-  &:hover {
-    background-color: ${props => 
-      props.secondary ? '#e6e6e6' : 
-      props.primary ? '#4a5fc1' : '#4a5fc1'};
-  }
-
-  &:disabled {
-    background-color: #e6e6e6;
-    color: #a0a0a0;
-    cursor: not-allowed;
-  }
-`;
 
 const ErrorMessage = styled.div`
   color: #df1b41;

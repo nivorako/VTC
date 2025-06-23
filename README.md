@@ -52,3 +52,14 @@ export default tseslint.config({
   },
 })
 ```
+# PROJET vtc
+
+## Démarrage :
+   vtc : npm run dev
+   vtc-server.js : npm run dev
+
+## payment : stripe
+## hébergement-server : render.com
+## hébergement-client : github pages / vercel.com
+
+
