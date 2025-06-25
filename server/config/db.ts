@@ -4,6 +4,11 @@ import mongoose from 'mongoose';
 // Variable exportée pour suivre l'état de la connexion
 export let isMongoConnected = false;
 
+/**
+ * Établit la connexion à la base de données MongoDB.
+ *
+ * @returns true si la connexion a réussi, false sinon
+ */
 const connectDB = async (): Promise<boolean> => {
   try {
     if (!process.env.MONGO_URI) {

@@ -31,9 +31,17 @@ interface PaymentStatusResponse {
 // }
 
 
-// Remplacez par votre clé publique Stripe (clé publiable)
+// clé publique Stripe (clé publiable)
 const stripePromise = loadStripe('pk_test_51RZw5JRkTF6EdgwvRqC30aXrGs7GbAJ4WzHJUMgTR6WynTG6xjKI6KdoDXv52F4HpmcahdRCFIdQkPZf9ZE6cCsH00qKvcqxfe');
 
+/**
+ * Formulaire de paiement pour le trajet sélectionné.
+ * 
+ * Si le state contient des informations de trajet, le formulaire de paiement est affiché.
+ * Sinon, un message d'erreur est affiché avec un bouton pour revenir à l'accueil.
+ * 
+ * @returns Formulaire de paiement ou un message d'erreur.
+ */
 const PaymentForm = () => {
   const stripe = useStripe();
   const elements = useElements();
@@ -123,6 +131,15 @@ const PaymentForm = () => {
     navigate(-1);
   };
 
+  /**
+   * Fonction pour gérer la soumission du formulaire de paiement.
+   * 
+   * 1. Crée une intention de paiement côté serveur avec les détails de la course.
+   * 2. Confirme le paiement avec les détails de la carte.
+   * 3. Vérifie le statut du paiement jusqu'à ce qu'il soit réussi ou échoué.
+   * 
+   * @param {React.FormEvent} e - Événement de soumission du formulaire
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 

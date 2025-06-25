@@ -10,6 +10,15 @@ const Berline = new URL("/src/assets/berline.webp", import.meta.url).href;
 const BerlineLux = new URL("/src/assets/berlineLux.webp", import.meta.url).href;
 const Van = new URL("/src/assets/van.webp", import.meta.url).href;
 
+    /**
+     * Component for booking a car.
+     * The component displays a form with options for date, time, departure and arrival,
+     * type of trip, number of passengers and vehicle type.
+     * The component also displays the total price.
+     * The user can select a car and the component will update the form with the selected car type.
+     * The component also displays a button to go to the previous page and a button to go to the next page.
+     * The user can also go back to the previous page by clicking on the link.
+     */
 export default function BookingCar() {
     const location = useLocation();
     const [selectedCar, setSelectedCar] = useState<string | null>(null);
@@ -37,6 +46,10 @@ export default function BookingCar() {
         }
     }, [location.state]);
 
+    /**
+     * Sets the selected car and updates the form values with the selected car type.
+     * @param {string} carType The type of car to select.
+     */
     const handleSelectCar = (carType: string) => {
         setSelectedCar(carType);
         setFormValues(prev => ({
