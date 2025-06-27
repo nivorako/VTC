@@ -1,65 +1,102 @@
-# React + TypeScript + Vite
+# VTC - Application de Transport
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Une application moderne de transport VTC (Voiture de Transport avec Chauffeur) construite avec React et Stripe pour les paiements.
 
-Currently, two official plugins are available:
+## 🚀 Technologies Utilisées
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Frontend**
+  - React 19
+  - React Router DOM
+  - Styled Components
+  - Formik & Yup pour la gestion des formulaires
+  - React Google Maps API
 
-## Expanding the ESLint configuration
+- **Backend**
+  - Node.js avec Express
+  - TypeScript
+  - Stripe API
+  - CORS
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📦 Installation
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+1. Clonez le repository
+```bash
+git clone [URL_DU_REPO]
+cd vtc
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+2. Installez les dépendances
+```bash
+npm install
 ```
-# PROJET vtc
 
-## Démarrage :
-   vtc : npm run dev
-   vtc-server.js : npm run dev
+3. Configurez les variables d'environnement
+Créez un fichier `.env` dans le dossier server avec les variables suivantes :
+```
+STRIPE_SECRET_KEY=votre_clé_secrète_stripe
+STRIPE_WEBHOOK_SECRET=votre_clé_webhook_stripe
+```
 
-## payment : stripe
-## hébergement-server : render.com
-## hébergement-client : github pages / vercel.com
+## 🏃‍♂️ Démarrage
 
+1. Lancez le serveur backend
+```bash
+npm run server 
+```
 
+2. Dans un autre terminal, lancez le frontend
+```bash
+npm run dev
+```
+
+## 📁 Structure du Projet
+
+```
+vtc/
+├── server/           # Backend Node.js/Express
+│   ├── server.ts     # Point d'entrée du serveur
+│   └── ...           # Autres fichiers backend
+├── src/             # Frontend React
+│   ├── components/  # Composants React
+│   ├── pages/       # Pages de l'application
+│   └── ...          # Autres dossiers frontend
+└── public/          # Assets statiques
+```
+
+## 📱 Fonctionnalités Principales
+
+- Système de réservation de courses
+- Intégration Stripe pour les paiements sécurisés
+- Cartographie avec Google Maps
+- Interface utilisateur moderne et responsive
+- Gestion des utilisateurs et des courses
+
+## 🔒 Sécurité
+
+- Paiements sécurisés via Stripe
+- Validation des données côté serveur
+- Protection CSRF
+- Webhooks sécurisés avec signature Stripe
+
+## 📝 API Routes
+
+- `/create-payment-intent` - Création d'une intention de paiement Stripe
+- Autres routes d'API à documenter selon les besoins
+
+## 📈 Hébergement
+
+- **Frontend** : GitHub Pages ou Vercel
+- **Backend** : Render.com
+
+## 🤝 Contributing
+
+Pour contribuer au projet :
+1. Fork le repository
+2. Créez votre branche (`git checkout -b feature/AmazingFeature`)
+3. Commit vos changements (`git commit -m 'Add some AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrez une Pull Request
+
+## 📄 Licence
+
+Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de détails.

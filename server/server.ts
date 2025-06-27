@@ -5,6 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import Stripe from 'stripe';
 import mongoose from 'mongoose';
+import Payment from './models/Payment';
 
 // Load environment variables first
 dotenv.config();
@@ -26,61 +27,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 // Import connectDB function
 import connectDB from './config/db';
 
-// Define Payment schema and model directly here to avoid import issues
-const paymentSchema = new mongoose.Schema({
-  paymentIntentId: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  amount: {
-    type: Number,
-    required: true,
-  },
-  currency: {
-    type: String,
-    required: true,
-    default: 'eur',
-  },
-  status: {
-    type: String,
-    required: true,
-    enum: ['succeeded', 'processing', 'requires_payment_method', 'requires_confirmation', 'canceled', 'failed'],
-  },
-  userId: {
-    type: String,
-    required: false,
-  },
-  rideId: {
-    type: String,
-    required: false,
-  },
-  paymentMethod: {
-    type: String,
-    required: false,
-  },
-  receiptUrl: {
-    type: String,
-    required: false,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
-
-// Middleware pour mettre à jour le champ updatedAt avant chaque sauvegarde
-paymentSchema.pre('save', function(next) {
-  this.updatedAt = new Date();
-  next();
-});
-
-// Create Payment model
-const Payment = mongoose.model('Payment', paymentSchema);
+// Import du modèle Payment depuis le fichier dédié
 
 // Déclarer une variable globale pour suivre l'état de la connexion MongoDB
 //let isMongoConnected = false;
