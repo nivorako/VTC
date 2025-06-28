@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import backgroundIMG from "../assets/voiture.webp";
 import { theme } from "../styles/theme";
+import React from "react";
 import { Button } from "../components/Button";
 
 // Images des services (à remplacer par les vôtres)
@@ -57,6 +58,12 @@ const services = [
 ];
 
 const Home = () => {
+  const [showMoreTestimonials, setShowMoreTestimonials] = React.useState(false);
+  
+  const toggleTestimonials = () => {
+    setShowMoreTestimonials(!showMoreTestimonials);
+  };
+
   return (
     <>
       <HeroSection>
@@ -97,6 +104,42 @@ const Home = () => {
           ))}
         </ServicesGrid>
       </ServicesSection>
+
+      <TestimonialsSection>
+        <SectionTitle>Ce que disent nos clients</SectionTitle>
+        <TestimonialsContainer>
+          <TestimonialCard>
+            <QuoteIcon>"</QuoteIcon>
+            <TestimonialText>Service exceptionnel ! Ponctualité irréprochable et voiture très confortable. Je recommande vivement.</TestimonialText>
+            <Rating>★★★★★</Rating>
+            <ClientName>Marie D.</ClientName>
+            <ClientLocation>Paris</ClientLocation>
+          </TestimonialCard>
+          
+          <MoreTestimonialsButton onClick={toggleTestimonials}>
+            <span>{showMoreTestimonials ? 'Voir moins' : 'Voir plus d\'avis'}</span>
+            <ArrowIcon style={{ transform: showMoreTestimonials ? 'rotate(90deg)' : 'none' }}>→</ArrowIcon>
+          </MoreTestimonialsButton>
+          
+          <AdditionalTestimonials className={showMoreTestimonials ? 'show' : ''}>
+            <TestimonialCard>
+              <QuoteIcon>"</QuoteIcon>
+              <TestimonialText>Chauffeur très professionnel et sympathique. Je fais systématiquement appel à eux pour mes déplacements professionnels.</TestimonialText>
+              <Rating>★★★★★</Rating>
+              <ClientName>Thomas L.</ClientName>
+              <ClientLocation>Rouen</ClientLocation>
+            </TestimonialCard>
+            
+            <TestimonialCard>
+              <QuoteIcon>"</QuoteIcon>
+              <TestimonialText>Service de grande qualité, j'ai particulièrement apprécié la flexibilité et la réactivité de l'équipe. À recommander sans hésitation !</TestimonialText>
+              <Rating>★★★★★</Rating>
+              <ClientName>Sophie M.</ClientName>
+              <ClientLocation>Gisors</ClientLocation>
+            </TestimonialCard>
+          </AdditionalTestimonials>
+        </TestimonialsContainer>
+      </TestimonialsSection>
     </>
   )
 }
@@ -122,7 +165,7 @@ const HeroSection = styled.section`
   width: 100%;
   min-height: 100vh;
   margin: 0 auto;
-  padding: 0 30px 30px;
+  padding: 0 10px 30px;
   text-align: center;
   background-image: url(${backgroundIMG});
   background-size: cover;
@@ -170,6 +213,114 @@ const ServicesSection = styled.section`
   width: 100%;
   max-width: 1440px;
   box-sizing: border-box;
+`;
+
+const TestimonialsSection = styled.section`
+  padding: 5rem 2rem;
+  background-color: ${theme.colors.backgroundLight};
+  text-align: center;
+`;
+
+const TestimonialsContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+`;
+
+const TestimonialCard = styled.div`
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 400px;
+  margin: 0 auto 2rem;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+`;
+
+const QuoteIcon = styled.span`
+  font-size: 3rem;
+  color: ${theme.colors.primary};
+  line-height: 1;
+  display: block;
+  margin-bottom: 1rem;
+`;
+
+const TestimonialText = styled.p`
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+`;
+
+const Rating = styled.div`
+  color: #FFD700;
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+`;
+
+const ClientName = styled.p`
+  font-weight: 600;
+  color: ${theme.colors.text};
+  margin: 0;
+`;
+
+const ClientLocation = styled.p`
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0.25rem 0 0;
+`;
+
+const MoreTestimonialsButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 2rem auto;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 2px solid ${theme.colors.primary};
+  color: ${theme.colors.primary};
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: ${theme.colors.primary};
+    color: white;
+  }
+`;
+
+const ArrowIcon = styled.span`
+  display: inline-block;
+  transition: transform 0.3s ease;
+  
+  ${MoreTestimonialsButton}:hover & {
+    transform: translateX(5px);
+  }
+`;
+
+const AdditionalTestimonials = styled.div`
+  display: none;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+  
+  &.show {
+    display: grid;
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const SectionTitle = styled.h2`
