@@ -118,7 +118,7 @@ const P = styled.p`
 const HeroSection = styled.section`
   position: relative;
   box-sizing: border-box;
-  max-width: 100%;
+  max-width: 1440px;
   width: 100%;
   min-height: 100vh;
   margin: 0 auto;
@@ -164,7 +164,7 @@ const ServicesSection = styled.section`
   padding: 5rem 2rem;
   background-color: ${theme.colors.backgroundLight};
   width: 100%;
-  max-width: 100%;
+  max-width: 1440px;
   box-sizing: border-box;
 `;
 
@@ -205,7 +205,15 @@ const ServicesGrid = styled.div`
   padding: 0 1rem;
   box-sizing: border-box;
 
-  @media (max-width: 768px) {
+   @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 1023px) and (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (max-width: 767px) {
     grid-template-columns: 1fr;
     padding: 0 0.5rem;
     gap: 1.5rem;
