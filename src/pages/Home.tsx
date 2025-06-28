@@ -175,9 +175,12 @@ const SectionTitle = styled.h2`
   font-size: 2.5rem;
   position: relative;
   padding-bottom: 1rem;
+  width: 100%;
+  max-width: 1440px;
+  padding: 0 1rem 1rem;      
   
   &::after {
-    content: '';
+    content: ''; 
     position: absolute;
     bottom: 0;
     left: 50%;
@@ -186,6 +189,10 @@ const SectionTitle = styled.h2`
     height: 3px;
     background-color: ${theme.colors.text};
   }
+  @media (max-width: 480px) {
+    font-size: 1.75rem;
+    padding: 0 0.5rem 0.75rem;
+  }
 `;
 
 const ServicesGrid = styled.div`
@@ -193,8 +200,16 @@ const ServicesGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
   max-width: 1440px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 1rem;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    padding: 0 0.5rem;
+    gap: 1.5rem;
+  }
 `;
 
 const ServiceCard = styled.article`
