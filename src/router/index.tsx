@@ -9,10 +9,16 @@ import Booking from '../pages/Booking';
 import BookingCar from '../pages/BookingCar';
 import UserContact from '../pages/UserContact';
 import UserPayment from '../pages/UserPayment';
+import ScrollToTop from '../components/ScrollToTop';
 
 export const router = createBrowserRouter([
   {
-    element: <MainLayout/>,
+    element: (
+      <>
+        <ScrollToTop />
+        <MainLayout />
+      </>
+    ),
     children: [
       {
         path: '/',
