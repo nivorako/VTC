@@ -7,7 +7,7 @@ import BookingCarDetails from "../components/BookingCarDetails";
 import type { BookingInfo } from "../types/booking";
 
 import berlineImg from "../assets/berline.webp";
-import berlineLuxImg from "../assets/berlineLux.webp";
+import berlineLuxImg from "../assets/berlineLUX.webp";
 import vanImg from "../assets/van.webp";
 
     /**
