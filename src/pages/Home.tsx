@@ -144,6 +144,10 @@ const HeroSection = styled.section`
     background: rgba(0, 0, 0, 0.5);
     z-index: 1;
   }
+  
+  @media (max-width: 480px) {
+    padding-top: 100px;
+  }
 `
 
 const Span1 = styled.span`

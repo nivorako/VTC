@@ -6,9 +6,9 @@ import { Button } from "../components/Button";
 import BookingCarDetails from "../components/BookingCarDetails";
 import type { BookingInfo } from "../types/booking";
 
-const Berline = new URL("/src/assets/berline.webp", import.meta.url).href;
-const BerlineLux = new URL("/src/assets/berlineLux.webp", import.meta.url).href;
-const Van = new URL("/src/assets/van.webp", import.meta.url).href;
+import berlineImg from "../assets/berline.webp";
+import berlineLuxImg from "../assets/berlineLux.webp";
+import vanImg from "../assets/van.webp";
 
     /**
      * Component for booking a car.
@@ -75,7 +75,7 @@ export default function BookingCar() {
                 </BookingCarDetailsContainer>
                 <CarChoices>
                     <Car style={{border: selectedCar === "berline" ? `2px solid ${theme.colors.primaryDark}` : "2px solid transparent"}}>
-                        <CarImage src={Berline} alt="berline" />
+                        <CarImage src={berlineImg} alt="berline" />
                         <CarInfos>
                             Infos
                         </CarInfos>
@@ -90,7 +90,7 @@ export default function BookingCar() {
                         </CarChoice>
                     </Car>  
                     <Car style={{border: selectedCar === "berlineLux" ? `2px solid ${theme.colors.primaryDark}` : "2px solid transparent"}}>
-                        <CarImage src={BerlineLux} alt="berlineLux" />
+                        <CarImage src={berlineLuxImg} alt="berlineLux" />
                         <CarInfos>
                             infos
                         </CarInfos>
@@ -105,7 +105,7 @@ export default function BookingCar() {
                         </CarChoice>
                     </Car>  
                     <Car style={{border: selectedCar === "van" ? `2px solid ${theme.colors.primaryDark}` : "2px solid transparent"}}>
-                        <CarImage src={Van} alt="van" />
+                        <CarImage src={vanImg} alt="van" />
                         <CarInfos>
                             infos
                         </CarInfos>
