@@ -116,11 +116,16 @@ const Home = () => {
             <ClientLocation>Paris</ClientLocation>
           </TestimonialCard>
           
-          <MoreTestimonialsButton onClick={toggleTestimonials}>
+          <Button onClick={toggleTestimonials}>
             <span>{showMoreTestimonials ? 'Voir moins' : 'Voir plus d\'avis'}</span>
             <ArrowIcon style={{ transform: showMoreTestimonials ? 'rotate(90deg)' : 'none' }}>→</ArrowIcon>
-          </MoreTestimonialsButton>
-          
+          </Button>
+          {/* <Button 
+            variant="text" 
+            onClick={toggleTestimonials}
+          >
+            {showMoreTestimonials ? 'Voir moins' : 'Voir plus d\'avis'}
+          </Button> */}
           <AdditionalTestimonials className={showMoreTestimonials ? 'show' : ''}>
             <TestimonialCard>
               <QuoteIcon>"</QuoteIcon>
@@ -176,7 +181,6 @@ const HeroSection = styled.section`
   align-items: center;
   gap: 2rem;
   color: white;
-  padding-top: 150px;
   &::before {
     content: '';
     position: absolute;
@@ -189,7 +193,7 @@ const HeroSection = styled.section`
   }
   
   @media (max-width: 480px) {
-    padding-top: 100px;
+
   }
 `
 
@@ -278,34 +282,10 @@ const ClientLocation = styled.p`
   margin: 0.25rem 0 0;
 `;
 
-const MoreTestimonialsButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin: 2rem auto;
-  padding: 0.75rem 1.5rem;
-  background: transparent;
-  border: 2px solid ${theme.colors.primary};
-  color: ${theme.colors.primary};
-  border-radius: 30px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: ${theme.colors.primary};
-    color: white;
-  }
-`;
-
 const ArrowIcon = styled.span`
   display: inline-block;
   transition: transform 0.3s ease;
-  
-  ${MoreTestimonialsButton}:hover & {
-    transform: translateX(5px);
-  }
+  margin-left: 10px;
 `;
 
 const AdditionalTestimonials = styled.div`
@@ -419,6 +399,6 @@ const ServiceContent = styled.div`
     align-self: flex-start;
     margin-top: auto;
   }
-`;
+`; 
 
 export default Home

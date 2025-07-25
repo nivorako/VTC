@@ -42,11 +42,11 @@ const StyledNavLink = styled(RouterNavLink)`
   transition: 0.3s;
 
   &:hover {
-    color: ${theme.colors.textHover};
+    color: ${theme.colors.primary};
   }
 
   &.active {
-    color: ${theme.colors.textHover};
+    color: ${theme.colors.primary};
   }
 `;
 
