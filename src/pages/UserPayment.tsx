@@ -87,9 +87,7 @@ const PaymentForm = () => {
   const checkPaymentStatus = async (paymentIntentId: string) => {
     try {
       // Utiliser le proxy configuré dans vite.config.ts
-      const apiUrl = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost'
-        ? `/api/payment-status/${paymentIntentId}` // URL avec proxy en développement
-        : `https://vtc-server.onrender.com/payment-status/${paymentIntentId}`;  // URL du backend déployé
+      const apiUrl = `${import.meta.env.VITE_API_URL}/api/payments/payment-status/${paymentIntentId}`;
       
       const response = await fetch(apiUrl);
       
@@ -155,9 +153,7 @@ const PaymentForm = () => {
     try {
       // 1. Créer une intention de paiement côté serveur
       // Utiliser le proxy configuré dans vite.config.ts
-      const apiUrl = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost'
-        ? '/api/create-payment-intent' // URL avec proxy en développement
-        : 'https://vtc-server.onrender.com/create-payment-intent';  // URL du backend déployé
+      const apiUrl = `${import.meta.env.VITE_API_URL}/api/payments/create-payment-intent`;
       
       console.log('Envoi de la requête à:', apiUrl);
       
