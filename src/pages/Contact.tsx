@@ -139,17 +139,7 @@ const FormContainer = styled.form`
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	@media (max-width: 768px) {
-		width: 100%;
-		max-width: 400px;
-	}
-    @media (max-width: 480px) {
-        max-width: 300px;
-    }
-	@media (max-width: 425px) {
-		
-		max-width: 200px;
-	}
+	box-sizing: border-box;
 `;
 
 const FormGroup = styled.div`

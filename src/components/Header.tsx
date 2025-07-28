@@ -12,7 +12,7 @@ const HeaderContainer = styled.header`
   width: 100%;
   background: ${theme.colors.background};
   margin: 0 auto;
-  padding: 0 10px;
+  padding: 10px;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
