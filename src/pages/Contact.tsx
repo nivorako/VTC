@@ -1,5 +1,6 @@
 import backgroundIMG from "../assets/voiture.webp";
 import styled from "styled-components";
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -18,12 +19,42 @@ const schema = yup.object().shape({
 type FormData = yup.InferType<typeof schema>;
 
 export default function Contact() {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
+  const onSubmit = async (data: FormData) => {
+    setLoading(true);
+    setSuccessMessage('');
+    setErrorMessage('');
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Une erreur est survenue lors de l\'envoi du message.');
+      }
+
+      setSuccessMessage(result.message);
+      reset(); // Réinitialise le formulaire après un envoi réussi
+	  console.log("Envoi réussi, data : ", data )
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Une erreur inconnue est survenue.');
+    } finally {
+      setLoading(false);
+    }
   };
 
 	return (
@@ -92,7 +123,12 @@ export default function Contact() {
 					{errors.message && <ErrorMessage>{errors.message.message}</ErrorMessage>}
 				</FormGroup>
 
-				<Button type="submit" variant="primary" size="large">Envoyer</Button>
+								{successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
+				{errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+
+				<Button type="submit" variant="primary" size="large" disabled={loading}>
+					{loading ? 'Envoi en cours...' : 'Envoyer'}
+				</Button>
 			</FormContainer>
 		</ContactSection>
 	)
@@ -191,5 +227,12 @@ const ErrorMessage = styled.p`
   color: #ff4d4d;
   margin-top: 0.5rem;
   font-size: 0.875rem;
+`;
+
+const SuccessMessage = styled.p`
+  color: #4caf50;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: bold;
 `;
 

@@ -5,17 +5,19 @@
     "main": "server.js",
     "scripts": {
         "start": "node dist/server.js",
-        "dev": "tsc-watch --onSuccess \"node dist/server.js\"", 
+        "dev": "tsc-watch --onSuccess \"node dist/server.js\"",
         "debug": "ts-node server.ts",
         "build": "tsc",
         "clean": "rimraf dist",
         "rebuild": "npm run clean && npm run build"
     },
     "dependencies": {
+        "@types/nodemailer": "^6.4.17",
         "cors": "^2.8.5",
         "dotenv": "^16.3.1",
         "express": "^4.18.2",
         "mongoose": "^8.16.0",
+        "nodemailer": "^7.0.5",
         "stripe": "^14.3.0"
     },
     "devDependencies": {
@@ -25,7 +27,7 @@
         "nodemon": "^3.0.1",
         "rimraf": "^6.0.1",
         "ts-node": "^10.9.2",
-        "typescript": "^5.8.3",
-        "tsc-watch": "^6.2.0"
+        "tsc-watch": "^6.2.0",
+        "typescript": "^5.8.3"
     }
 }
