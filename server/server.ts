@@ -32,7 +32,13 @@ const port = process.env.PORT || 4000;
 
 // CORS middleware to allow cross-origin requests
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://vtc-client.onrender.com'],
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://vtc-client.onrender.com',
+    /^https:\/\/.*\.vercel\.app$/,  // Allow all Vercel subdomains
+    /^https:\/\/.*\.vercel\.com$/   // Allow all Vercel custom domains
+  ],
   credentials: true
 }));
 

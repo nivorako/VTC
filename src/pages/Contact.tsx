@@ -41,6 +41,11 @@ export default function Contact() {
         body: JSON.stringify(data),
       });
 
+	  const contentType = response.headers.get('content-type');
+	  if (!contentType || !contentType.includes('application/json')) {
+		throw new Error(`Erreur serveur: ${response.status} ${response.statusText}`);
+	  }
+
       const result = await response.json();
 
       if (!response.ok) {
@@ -123,7 +128,7 @@ export default function Contact() {
 					{errors.message && <ErrorMessage>{errors.message.message}</ErrorMessage>}
 				</FormGroup>
 
-								{successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
+				{successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
 				{errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
 
 				<Button type="submit" variant="primary" size="large" disabled={loading}>
