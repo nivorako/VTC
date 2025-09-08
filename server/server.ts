@@ -47,6 +47,18 @@ app.use(express.json());
 
 // --- API Routes ---
 
+// Root route to confirm API is working
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'VTC API Server is running', 
+    status: 'OK',
+    endpoints: {
+      contact: '/api/contact',
+      payments: '/api/payments'
+    }
+  });
+});
+
 // Mount the payment routes under the /api/payments prefix
 app.use('/api/payments', paymentRoutes);
 
@@ -57,10 +69,6 @@ app.use('/api', contactRoutes);
 
 // This must be the last middleware to be used
 app.use(errorHandler);
-
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-})
 
 // --- Start Server ---
 
