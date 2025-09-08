@@ -58,6 +58,10 @@ app.use('/api', contactRoutes);
 // This must be the last middleware to be used
 app.use(errorHandler);
 
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+})
+
 // --- Start Server ---
 
 app.listen(port, () => {
