@@ -38,7 +38,7 @@ export const sendEmail = async (req: Request, res: Response) => {
         });
 
         // Verify connection configuration
-        transporter.verify(function (error) {
+        transporter.verify(function (error: Error | null) {
             if (error) {
                 console.log('Gmail connection error:', error);
             } else {
