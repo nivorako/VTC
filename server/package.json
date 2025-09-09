@@ -2,14 +2,15 @@
     "name": "vtc-payment-server",
     "version": "1.0.0",
     "description": "Serveur de paiement pour l'application VTC",
-    "main": "server.js",
+    "main": "dist/server.js",
     "scripts": {
         "start": "node dist/server.js",
         "dev": "tsc-watch --onSuccess \"node dist/server.js\"",
         "debug": "ts-node server.ts",
-        "build": "tsc",
+        "build": "tsc && cp .env dist/ || copy .env dist\\",
         "clean": "rimraf dist",
-        "rebuild": "npm run clean && npm run build"
+        "rebuild": "npm run clean && npm run build",
+        "postbuild": "cp .env dist/ 2>/dev/null || copy .env dist\\ 2>nul || true"
     },
     "dependencies": {
         "@types/nodemailer": "^6.4.17",

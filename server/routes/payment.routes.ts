@@ -3,7 +3,7 @@ import {
     createPaymentIntent,
     getPaymentStatus,
     handleWebhook
-} from '../controllers/payment.controller.js';
+} from '../controllers/payment.controller';
 
 const router = Router();
 

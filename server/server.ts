@@ -12,15 +12,14 @@ import express from 'express';
 import cors from 'cors';
 
 // Import configurations and initializers
-import connectDB from './config/db.js';
+import connectDB from './config/db';
 
 // Import middlewares
-
-import { errorHandler } from './middlewares/errorHandler.middleware.js';
+import { errorHandler } from './middlewares/errorHandler.middleware';
 
 // Import routes
-import paymentRoutes from './routes/payment.routes.js';
-import contactRoutes from './routes/contact.routes.js';
+import paymentRoutes from './routes/payment.routes';
+import contactRoutes from './routes/contact.routes';
 
 // Connect to the database
 connectDB();
@@ -39,7 +38,10 @@ app.use(cors({
     /^https:\/\/.*\.vercel\.app$/,  // Allow all Vercel subdomains
     /^https:\/\/.*\.vercel\.com$/   // Allow all Vercel custom domains
   ],
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
 }));
 
 // Middleware to parse JSON bodies. This is crucial for handling POST requests.
