@@ -7,7 +7,7 @@
         "start": "node dist/server.js",
         "dev": "tsc-watch --onSuccess \"node dist/server.js\"",
         "debug": "ts-node server.ts",
-        "build": "tsc && cp .env dist/ || copy .env dist\\",
+        "build": "tsc",
         "clean": "rimraf dist",
         "rebuild": "npm run clean && npm run build",
         "postbuild": "cp .env dist/ 2>/dev/null || copy .env dist\\ 2>nul || true"

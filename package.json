@@ -10,7 +10,9 @@
     "clean": "rimraf dist",
     "build": "npm run build:server && tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "render-build": "cd server && npm install && npm run build",
+    "start": "cd server && npm start"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.0",
