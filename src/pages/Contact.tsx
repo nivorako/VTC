@@ -33,7 +33,12 @@ export default function Contact() {
     setErrorMessage('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/contact`, {
+      // Use different API endpoints for different environments
+      const apiUrl = import.meta.env.VITE_API_URL 
+        ? `${import.meta.env.VITE_API_URL}/api/contact`  // For Render deployment or local dev
+        : '/api/contact';  // For Vercel serverless functions
+        
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

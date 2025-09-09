@@ -8,17 +8,19 @@
     "server": "npm run build:server && cross-env NODE_ENV=development node dist/server/server.js",
     "build:server": "tsc --project tsconfig.node.json && copyfiles -u 1 server/.env dist/server",
     "clean": "rimraf dist",
-    "build": "npm run build:server && tsc -b && vite build",
+    "build": "npm run build:server && tsc -b && vite build && cd server && npm install && npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
     "render-build": "cd server && npm install && npm run build",
-    "start": "cd server && npm start"
+    "start": "cd server && npm start",
+    "vercel-build": "npm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.0",
     "@react-google-maps/api": "^2.20.6",
     "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^7.3.1",
+    "@types/nodemailer": "^7.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
