@@ -4,6 +4,7 @@
     "description": "Serveur de paiement pour l'application VTC",
     "main": "dist/server.js",
     "scripts": {
+        "prestart": "npm run build",
         "start": "node dist/server.js",
         "dev": "tsc-watch --onSuccess \"node dist/server.js\"",
         "debug": "ts-node server.ts",

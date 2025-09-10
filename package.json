@@ -11,7 +11,7 @@
     "build": "npm run build:server && tsc -b && vite build && cd server && npm install && npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "render-build": "cd server && npm install && npm run build",
+    "render-build": "cd server && npm ci --include=dev && npm run build",
     "start": "cd server && npm start",
     "vercel-build": "tsc -b && vite build"
   },
