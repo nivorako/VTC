@@ -4,11 +4,6 @@
       "runtime": "@vercel/node"
     }
   },
-  "env": {
-    "GMAIL_USER": "@gmail_user",
-    "GMAIL_PASS": "@gmail_pass", 
-    "RECIPIENT_EMAIL": "@recipient_email"
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
