@@ -3,9 +3,14 @@ services:
     name: vtc-server
     env: node
     plan: free
-    buildCommand: npm install && npm run build
+    buildCommand: cd server && npm install && npm run build
     startCommand: node dist/server.js
-    rootDir: ./server
     envVars:
       - key: NODE_ENV
         value: production
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_PASS
+        sync: false
+      - key: RECIPIENT_EMAIL
+        sync: false
