@@ -13,7 +13,7 @@
     "preview": "vite preview",
     "render-build": "cd server && npm install && npm run build",
     "start": "cd server && npm start",
-    "vercel-build": "npm run build"
+    "vercel-build": "tsc -b && vite build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.0",
