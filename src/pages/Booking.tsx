@@ -190,6 +190,9 @@ const Maps = styled.div`
     border-radius: 10px;
     border: 20px solid #fff;
     z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     @media (max-width: 768px) {
         width: 80%;
     }
