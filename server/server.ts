@@ -30,19 +30,34 @@ const port = process.env.PORT || 4000;
 // --- Middlewares ---
 
 // CORS middleware to allow cross-origin requests
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'https://vtc-client.onrender.com',
-    /^https:\/\/.*\.vercel\.app$/,  // Allow all Vercel subdomains
-    /^https:\/\/.*\.vercel\.com$/   // Allow all Vercel custom domains
-  ],
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://vtc-client.onrender.com',
+  /^http:\/\/localhost:\d+$/,      // any localhost port
+  /^http:\/\/127\.0\.0\.1:\d+$/, // any 127.0.0.1 port
+  /^https:\/\/.*\.vercel\.app$/,   // Vercel subdomains
+  /^https:\/\/.*\.vercel\.com$/    // Vercel custom domains
+];
+
+const corsOptions: cors.CorsOptions = {
+  origin(origin, callback) {
+    // allow non-browser tools with no origin (e.g., Postman)
+    if (!origin) return callback(null, true);
+    const isAllowed = allowedOrigins.some((o) =>
+      typeof o === 'string' ? o === origin : o.test(origin)
+    );
+    return isAllowed ? callback(null, true) : callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  optionsSuccessStatus: 200
-}));
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+// Explicitly enable preflight across-the-board
+app.options('*', cors(corsOptions));
 
 // Middleware to parse JSON bodies. This is crucial for handling POST requests.
 app.use(express.json());
