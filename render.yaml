@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: vtc-server
+    env: node
+    plan: free
+    buildCommand: cd server && npm ci --include=dev && npm run build
+    startCommand: cd server && node dist/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_PASS
+        sync: false
+      - key: RECIPIENT_EMAIL
+        sync: false
+      - key: MONGO_URI
+        sync: false
