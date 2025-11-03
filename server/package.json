@@ -12,7 +12,11 @@
         "build": "tsc",
         "clean": "rimraf dist",
         "rebuild": "npm run clean && npm run build",
-        "postbuild": "test -f .env && cp .env dist/ || echo No .env file found"
+        "postbuild": "test -f .env && cp .env dist/ || echo No .env file found",
+        "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+        "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+        "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+        "test:verbose": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose"
     },
     "dependencies": {
         "@types/nodemailer": "^6.4.17",
@@ -26,9 +30,14 @@
     "devDependencies": {
         "@types/cors": "^2.8.19",
         "@types/express": "^4.17.23",
+        "@types/jest": "^30.0.0",
         "@types/node": "^24.0.3",
+        "@types/supertest": "^6.0.3",
+        "jest": "^30.2.0",
         "nodemon": "^3.0.1",
         "rimraf": "^6.0.1",
+        "supertest": "^7.1.4",
+        "ts-jest": "^29.4.5",
         "ts-node": "^10.9.2",
         "tsc-watch": "^6.2.0",
         "typescript": "^5.8.3"

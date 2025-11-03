@@ -10,15 +10,15 @@ import berlineImg from "../assets/berline.webp";
 import berlineLuxImg from "../assets/berlineLUX.webp";
 import vanImg from "../assets/van.webp";
 
-    /**
-     * Component for booking a car.
-     * The component displays a form with options for date, time, departure and arrival,
-     * type of trip, number of passengers and vehicle type.
-     * The component also displays the total price.
-     * The user can select a car and the component will update the form with the selected car type.
-     * The component also displays a button to go to the previous page and a button to go to the next page.
-     * The user can also go back to the previous page by clicking on the link.
-     */
+/**
+ * Component for booking a car.
+ * The component displays a form with options for date, time, departure and arrival,
+ * type of trip, number of passengers and vehicle type.
+ * The component also displays the total price.
+ * The user can select a car and the component will update the form with the selected car type.
+ * The component also displays a button to go to the previous page and a button to go to the next page.
+ * The user can also go back to the previous page by clicking on the link.
+ */
 export default function BookingCar() {
     const location = useLocation();
     const [selectedCar, setSelectedCar] = useState<string | null>(null);
@@ -37,7 +37,10 @@ export default function BookingCar() {
 
     useEffect(() => {
         if (location.state) {
-            const { bookingDetails, distance } = location.state as { bookingDetails: BookingInfo, distance: string };
+            const { bookingDetails, distance } = location.state as {
+                bookingDetails: BookingInfo;
+                distance: string;
+            };
             setFormValues(bookingDetails);
             setDistance(distance);
             if (bookingDetails.vehicule) {
@@ -52,9 +55,9 @@ export default function BookingCar() {
      */
     const handleSelectCar = (carType: string) => {
         setSelectedCar(carType);
-        setFormValues(prev => ({
+        setFormValues((prev) => ({
             ...prev,
-            vehicule: carType
+            vehicule: carType,
         }));
     };
 
@@ -74,67 +77,98 @@ export default function BookingCar() {
                     />
                 </BookingCarDetailsContainer>
                 <CarChoices>
-                    <Car style={{border: selectedCar === "berline" ? `2px solid ${theme.colors.primaryDark}` : "2px solid transparent"}}>
+                    <Car
+                        style={{
+                            border:
+                                selectedCar === "berline"
+                                    ? `2px solid ${theme.colors.primaryDark}`
+                                    : "2px solid transparent",
+                        }}
+                    >
                         <CarImage src={berlineImg} alt="berline" />
-                        <CarInfos>
-                            Infos
-                        </CarInfos>
+                        <CarInfos>Infos</CarInfos>
                         <CarChoice>
                             <Button
                                 variant="primary"
                                 size="medium"
-                                onClick={() => {handleSelectCar("berline")}}
+                                onClick={() => {
+                                    handleSelectCar("berline");
+                                }}
                             >
                                 Choisir
                             </Button>
                         </CarChoice>
-                    </Car>  
-                    <Car style={{border: selectedCar === "berlineLux" ? `2px solid ${theme.colors.primaryDark}` : "2px solid transparent"}}>
+                    </Car>
+                    <Car
+                        style={{
+                            border:
+                                selectedCar === "berlineLux"
+                                    ? `2px solid ${theme.colors.primaryDark}`
+                                    : "2px solid transparent",
+                        }}
+                    >
                         <CarImage src={berlineLuxImg} alt="berlineLux" />
-                        <CarInfos>
-                            infos
-                        </CarInfos>
+                        <CarInfos>infos</CarInfos>
                         <CarChoice>
                             <Button
                                 variant="primary"
                                 size="medium"
-                                onClick={() => {handleSelectCar("berlineLux")}}
+                                onClick={() => {
+                                    handleSelectCar("berlineLux");
+                                }}
                             >
                                 Choisir
                             </Button>
                         </CarChoice>
-                    </Car>  
-                    <Car style={{border: selectedCar === "van" ? `2px solid ${theme.colors.primaryDark}` : "2px solid transparent"}}>
+                    </Car>
+                    <Car
+                        style={{
+                            border:
+                                selectedCar === "van"
+                                    ? `2px solid ${theme.colors.primaryDark}`
+                                    : "2px solid transparent",
+                        }}
+                    >
                         <CarImage src={vanImg} alt="van" />
-                        <CarInfos>
-                            infos
-                        </CarInfos>
+                        <CarInfos>infos</CarInfos>
                         <CarChoice>
                             <Button
                                 variant="primary"
                                 size="medium"
-                                onClick={() => {handleSelectCar("van")}}
+                                onClick={() => {
+                                    handleSelectCar("van");
+                                }}
                             >
                                 Choisir
                             </Button>
                         </CarChoice>
-                    </Car>  
+                    </Car>
                 </CarChoices>
             </BookingCarContainer>
             <ButtonsContainer>
-                <Link to="/booking" state={{ bookingDetails: formValues, distance }}>
+                <Link
+                    to="/booking"
+                    state={{ bookingDetails: formValues, distance }}
+                >
                     <Button variant="secondary" size="medium">
                         Modifier les détails
                     </Button>
                 </Link>
-                <Link to="/user-contact" state={{ bookingDetails: formValues, distance, totalPrice }}>
-                    <Button variant="primary" size="medium" disabled={!selectedCar}>
+                <Link
+                    to="/user-contact"
+                    state={{ bookingDetails: formValues, distance, totalPrice }}
+                >
+                    <Button
+                        variant="primary"
+                        size="medium"
+                        disabled={!selectedCar}
+                    >
                         Saisir les coordonnées
                     </Button>
                 </Link>
             </ButtonsContainer>
         </Section>
-    )
+    );
 }
 
 const StyledH1 = styled.h1`
@@ -173,7 +207,7 @@ const Section = styled.section`
         background: rgba(0, 0, 0, 0.5); 
         z-index: 1;
   } */
-`
+`;
 
 const BookingCarContainer = styled.div`
     width: 100%;
@@ -188,13 +222,13 @@ const BookingCarContainer = styled.div`
         flex-direction: column;
         /* Le gap est remplacé par une marge sur CarChoices pour un meilleur contrôle */
     }
-`
+`;
 
 const BookingCarDetailsContainer = styled.div`
     width: 30%;
     display: flex;
     flex-direction: column;
-    
+
     @media (max-width: 1024px) {
         width: 40%;
     }
@@ -202,7 +236,7 @@ const BookingCarDetailsContainer = styled.div`
         width: 100%;
         order: 2;
     }
-`
+`;
 
 const CarChoices = styled.div`
     width: 70%;
@@ -224,7 +258,7 @@ const CarChoices = styled.div`
         order: 1;
         margin-bottom: 1rem; /* Ajout d'une marge pour l'espacement */
     }
-`
+`;
 const ButtonsContainer = styled.div`
     display: flex;
     justify-content: space-between;
@@ -251,9 +285,9 @@ const ButtonsContainer = styled.div`
             max-width: 400px;
         }
     }
-`
+`;
 
-const Car = styled.div` 
+const Car = styled.div`
     width: 100%;
     flex: 1 1 auto; // Permet à chaque Car de prendre autant d'espace que possible
     display: flex;
@@ -262,14 +296,14 @@ const Car = styled.div`
     background: white;
     border-radius: 10px;
     padding: 1rem;
-    box-sizing: border-box; 
+    box-sizing: border-box;
     overflow: hidden; // Pour éviter le débordement
     transition: border-color 0.3s ease;
 
     @media (max-width: 768px) {
         min-height: 120px;
     }
-`
+`;
 
 const CarImage = styled.img`
     width: 60%;
@@ -281,7 +315,7 @@ const CarImage = styled.img`
     @media (max-width: 768px) {
         width: 40%;
     }
-`
+`;
 
 const CarInfos = styled.div`
     width: 20%;
@@ -289,7 +323,7 @@ const CarInfos = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-`
+`;
 
 const CarChoice = styled.div`
     width: 20%;
@@ -297,11 +331,12 @@ const CarChoice = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-   
+
     @media (max-width: 768px) {
-         button, a {
+        button,
+        a {
             padding: 0.5rem 1rem;
             font-size: 0.875rem;
         }
     }
-`
+`;

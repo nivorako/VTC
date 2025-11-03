@@ -1,35 +1,44 @@
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import BookingCarDetails from '../components/BookingCarDetails';
-import { Button } from '../components/Button';
-import { theme } from '../styles/theme';
-import type { BookingInfo } from '../types/booking';
-import { FaCcMastercard, FaCcVisa, FaCcAmex, FaCheckCircle } from 'react-icons/fa';
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import BookingCarDetails from "../components/BookingCarDetails";
+import { Button } from "../components/Button";
+import { theme } from "../styles/theme";
+import type { BookingInfo } from "../types/booking";
+import {
+    FaCcMastercard,
+    FaCcVisa,
+    FaCcAmex,
+    FaCheckCircle,
+} from "react-icons/fa";
 
 export default function UserContact() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { bookingDetails, distance, totalPrice } = location.state as { bookingDetails: BookingInfo, distance: string, totalPrice: number };
+    const { bookingDetails, distance, totalPrice } = location.state as {
+        bookingDetails: BookingInfo;
+        distance: string;
+        totalPrice: number;
+    };
 
     const [contactInfo, setContactInfo] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
     });
 
-    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('visa'); // Default to Visa
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("visa"); // Default to Visa
     const [showBillingAddress, setShowBillingAddress] = useState(false);
     const [billingAddress, setBillingAddress] = useState({
-        companyName: '',
-        vatNumber: '',
-        address: '',
-        streetNumber: '',
-        city: '',
-        region: '',
-        zipCode: '',
-        country: '',
+        companyName: "",
+        vatNumber: "",
+        address: "",
+        streetNumber: "",
+        city: "",
+        region: "",
+        zipCode: "",
+        country: "",
     });
 
     useEffect(() => {
@@ -38,12 +47,12 @@ export default function UserContact() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setContactInfo(prev => ({ ...prev, [name]: value }));
+        setContactInfo((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleBillingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setBillingAddress(prev => ({ ...prev, [name]: value }));
+        setBillingAddress((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -55,34 +64,74 @@ export default function UserContact() {
             paymentMethod: selectedPaymentMethod,
             ...(showBillingAddress && { billingAddress }),
         };
-        console.log('Booking confirmed:', submissionData);
-        navigate('/user-payment', { state: { bookingDetails, contactInfo, paymentMethod: selectedPaymentMethod, billingAddress, totalPrice } }); // Redirige vers la page UserPayment
+        console.log("Booking confirmed:", submissionData);
+        navigate("/user-payment", {
+            state: {
+                bookingDetails,
+                contactInfo,
+                paymentMethod: selectedPaymentMethod,
+                billingAddress,
+                totalPrice,
+            },
+        }); // Redirige vers la page UserPayment
     };
 
     return (
         <Section>
-            <h1 style={{ color: 'white' }}>VOS COORDONNÉES</h1>
+            <h1 style={{ color: "white" }}>VOS COORDONNÉES</h1>
             <Container>
                 <BookingCarDetailsContainer>
-                    <BookingCarDetails bookingInfo={bookingDetails} distance={distance} totalPrice={totalPrice} />
+                    <BookingCarDetails
+                        bookingInfo={bookingDetails}
+                        distance={distance}
+                        totalPrice={totalPrice}
+                    />
                 </BookingCarDetailsContainer>
                 <ContactFormContainer>
                     <Form onSubmit={handleSubmit}>
                         <InputGroup>
                             <Label htmlFor="firstName">Prénom</Label>
-                            <Input type="text" id="firstName" name="firstName" value={contactInfo.firstName} onChange={handleChange} required />
+                            <Input
+                                type="text"
+                                id="firstName"
+                                name="firstName"
+                                value={contactInfo.firstName}
+                                onChange={handleChange}
+                                required
+                            />
                         </InputGroup>
                         <InputGroup>
                             <Label htmlFor="lastName">Nom</Label>
-                            <Input type="text" id="lastName" name="lastName" value={contactInfo.lastName} onChange={handleChange} required />
+                            <Input
+                                type="text"
+                                id="lastName"
+                                name="lastName"
+                                value={contactInfo.lastName}
+                                onChange={handleChange}
+                                required
+                            />
                         </InputGroup>
                         <InputGroup>
                             <Label htmlFor="email">Email</Label>
-                            <Input type="email" id="email" name="email" value={contactInfo.email} onChange={handleChange} required />
+                            <Input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={contactInfo.email}
+                                onChange={handleChange}
+                                required
+                            />
                         </InputGroup>
                         <InputGroup>
                             <Label htmlFor="phone">Téléphone</Label>
-                            <Input type="tel" id="phone" name="phone" value={contactInfo.phone} onChange={handleChange} required />
+                            <Input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                value={contactInfo.phone}
+                                onChange={handleChange}
+                                required
+                            />
                         </InputGroup>
 
                         <CheckboxWrapper>
@@ -90,67 +139,155 @@ export default function UserContact() {
                                 type="checkbox"
                                 id="billingAddressToggle"
                                 checked={showBillingAddress}
-                                onChange={e => setShowBillingAddress(e.target.checked)}
+                                onChange={(e) =>
+                                    setShowBillingAddress(e.target.checked)
+                                }
                             />
-                            <Label htmlFor="billingAddressToggle">Ajouter une adresse de facturation</Label>
+                            <Label htmlFor="billingAddressToggle">
+                                Ajouter une adresse de facturation
+                            </Label>
                         </CheckboxWrapper>
 
                         {showBillingAddress && (
                             <BillingFormContainer>
                                 <InputGroup>
-                                    <Label htmlFor="companyName">Nom de l'entreprise</Label>
-                                    <Input type="text" id="companyName" name="companyName" value={billingAddress.companyName} onChange={handleBillingChange} />
+                                    <Label htmlFor="companyName">
+                                        Nom de l'entreprise
+                                    </Label>
+                                    <Input
+                                        type="text"
+                                        id="companyName"
+                                        name="companyName"
+                                        value={billingAddress.companyName}
+                                        onChange={handleBillingChange}
+                                    />
                                 </InputGroup>
                                 <InputGroup>
-                                    <Label htmlFor="vatNumber">Numéro de TVA</Label>
-                                    <Input type="text" id="vatNumber" name="vatNumber" value={billingAddress.vatNumber} onChange={handleBillingChange} />
+                                    <Label htmlFor="vatNumber">
+                                        Numéro de TVA
+                                    </Label>
+                                    <Input
+                                        type="text"
+                                        id="vatNumber"
+                                        name="vatNumber"
+                                        value={billingAddress.vatNumber}
+                                        onChange={handleBillingChange}
+                                    />
                                 </InputGroup>
                                 <InputGroup>
                                     <Label htmlFor="address">Adresse</Label>
-                                    <Input type="text" id="address" name="address" value={billingAddress.address} onChange={handleBillingChange} />
+                                    <Input
+                                        type="text"
+                                        id="address"
+                                        name="address"
+                                        value={billingAddress.address}
+                                        onChange={handleBillingChange}
+                                    />
                                 </InputGroup>
                                 <InputGroup>
-                                    <Label htmlFor="streetNumber">Numéro de rue</Label>
-                                    <Input type="text" id="streetNumber" name="streetNumber" value={billingAddress.streetNumber} onChange={handleBillingChange} />
+                                    <Label htmlFor="streetNumber">
+                                        Numéro de rue
+                                    </Label>
+                                    <Input
+                                        type="text"
+                                        id="streetNumber"
+                                        name="streetNumber"
+                                        value={billingAddress.streetNumber}
+                                        onChange={handleBillingChange}
+                                    />
                                 </InputGroup>
                                 <InputGroup>
                                     <Label htmlFor="city">Ville</Label>
-                                    <Input type="text" id="city" name="city" value={billingAddress.city} onChange={handleBillingChange} />
+                                    <Input
+                                        type="text"
+                                        id="city"
+                                        name="city"
+                                        value={billingAddress.city}
+                                        onChange={handleBillingChange}
+                                    />
                                 </InputGroup>
                                 <InputGroup>
                                     <Label htmlFor="region">Région</Label>
-                                    <Input type="text" id="region" name="region" value={billingAddress.region} onChange={handleBillingChange} />
+                                    <Input
+                                        type="text"
+                                        id="region"
+                                        name="region"
+                                        value={billingAddress.region}
+                                        onChange={handleBillingChange}
+                                    />
                                 </InputGroup>
                                 <InputGroup>
                                     <Label htmlFor="zipCode">Code Postal</Label>
-                                    <Input type="text" id="zipCode" name="zipCode" value={billingAddress.zipCode} onChange={handleBillingChange} />
+                                    <Input
+                                        type="text"
+                                        id="zipCode"
+                                        name="zipCode"
+                                        value={billingAddress.zipCode}
+                                        onChange={handleBillingChange}
+                                    />
                                 </InputGroup>
                                 <InputGroup>
                                     <Label htmlFor="country">Pays</Label>
-                                    <Input type="text" id="country" name="country" value={billingAddress.country} onChange={handleBillingChange} />
+                                    <Input
+                                        type="text"
+                                        id="country"
+                                        name="country"
+                                        value={billingAddress.country}
+                                        onChange={handleBillingChange}
+                                    />
                                 </InputGroup>
                             </BillingFormContainer>
                         )}
 
                         <PaymentMethodContainer>
-                            <h2 style={{ textAlign: 'center', color: theme.colors.text }}>Choisissez votre méthode de paiement</h2>
+                            <h2
+                                style={{
+                                    textAlign: "center",
+                                    color: theme.colors.text,
+                                }}
+                            >
+                                Choisissez votre méthode de paiement
+                            </h2>
                             <PaymentIconsContainer>
-                                <PaymentIconWrapper onClick={() => setSelectedPaymentMethod('mastercard')}>
+                                <PaymentIconWrapper
+                                    onClick={() =>
+                                        setSelectedPaymentMethod("mastercard")
+                                    }
+                                >
                                     <FaCcMastercard size={80} color="#EB001B" />
-                                    {selectedPaymentMethod === 'mastercard' && <CheckMark />}
+                                    {selectedPaymentMethod === "mastercard" && (
+                                        <CheckMark />
+                                    )}
                                 </PaymentIconWrapper>
-                                <PaymentIconWrapper onClick={() => setSelectedPaymentMethod('visa')}>
+                                <PaymentIconWrapper
+                                    onClick={() =>
+                                        setSelectedPaymentMethod("visa")
+                                    }
+                                >
                                     <FaCcVisa size={80} color="#1A1F71" />
-                                    {selectedPaymentMethod === 'visa' && <CheckMark />}
+                                    {selectedPaymentMethod === "visa" && (
+                                        <CheckMark />
+                                    )}
                                 </PaymentIconWrapper>
-                                <PaymentIconWrapper onClick={() => setSelectedPaymentMethod('amex')}>
+                                <PaymentIconWrapper
+                                    onClick={() =>
+                                        setSelectedPaymentMethod("amex")
+                                    }
+                                >
                                     <FaCcAmex size={80} color="#006FCF" />
-                                    {selectedPaymentMethod === 'amex' && <CheckMark />}
+                                    {selectedPaymentMethod === "amex" && (
+                                        <CheckMark />
+                                    )}
                                 </PaymentIconWrapper>
                             </PaymentIconsContainer>
                         </PaymentMethodContainer>
 
-                        <Button onClick={handleSubmit} variant="primary" size="large" type="submit">
+                        <Button
+                            onClick={handleSubmit}
+                            variant="primary"
+                            size="large"
+                            type="submit"
+                        >
                             Confirmer la réservation
                         </Button>
                     </Form>
@@ -190,7 +327,7 @@ const BookingCarDetailsContainer = styled.div`
     width: 30%;
     display: flex;
     flex-direction: column;
-    
+
     & > div {
         height: 100%; // Assure que BookingCarDetails prend toute la hauteur
     }
@@ -240,7 +377,7 @@ const Label = styled.label`
 
 const Input = styled.input`
     padding: 0.75rem;
-    border: 1px solid ${theme.colors.text}; 
+    border: 1px solid ${theme.colors.text};
     border-radius: 5px;
     font-size: 1rem;
 
@@ -274,7 +411,7 @@ const PaymentIconWrapper = styled.div`
 `;
 
 const CheckMark = () => (
-    <div style={{ marginTop: '10px' }}>
+    <div style={{ marginTop: "10px" }}>
         <FaCheckCircle size={24} color={theme.colors.primary} />
     </div>
 );

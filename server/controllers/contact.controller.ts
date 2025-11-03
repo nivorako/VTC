@@ -1,5 +1,5 @@
-import type { Request, Response } from 'express';
-import nodemailer from 'nodemailer';
+import type { Request, Response } from "express";
+import nodemailer from "nodemailer";
 
 interface ContactRequestBody {
     name: string;
@@ -17,10 +17,20 @@ interface ContactRequestBody {
  */
 export const sendEmail = async (req: Request, res: Response) => {
     try {
-        const { name, email, message, phone, clientType, requestType } = req.body as ContactRequestBody;
+        const { name, email, message, phone, clientType, requestType } =
+            req.body as ContactRequestBody;
 
-        if (!name || !email || !message || !phone || !clientType || !requestType) {
-            return res.status(400).json({ message: 'Tous les champs sont requis.' });
+        if (
+            !name ||
+            !email ||
+            !message ||
+            !phone ||
+            !clientType ||
+            !requestType
+        ) {
+            return res
+                .status(400)
+                .json({ message: "Tous les champs sont requis." });
         }
 
         // 1. Create a transporter
@@ -30,7 +40,7 @@ export const sendEmail = async (req: Request, res: Response) => {
         // GMAIL_PASS=your-app-password (not your regular password)
         // RECIPIENT_EMAIL=the-email-address-to-receive-messages@example.com
         const transporter = nodemailer.createTransport({
-            service: 'gmail',
+            service: "gmail",
             auth: {
                 user: process.env.GMAIL_USER,
                 pass: process.env.GMAIL_PASS,
@@ -40,9 +50,9 @@ export const sendEmail = async (req: Request, res: Response) => {
         // Verify connection configuration
         transporter.verify(function (error: Error | null) {
             if (error) {
-                console.log('Gmail connection error:', error);
+                console.log("Gmail connection error:", error);
             } else {
-                console.log('Server is ready to take our messages');
+                console.log("Server is ready to take our messages");
             }
         });
 
@@ -51,7 +61,7 @@ export const sendEmail = async (req: Request, res: Response) => {
             from: `"VTC-Project" <${process.env.GMAIL_USER}>`, // sender address (must be your Gmail)
             to: process.env.RECIPIENT_EMAIL, // list of receivers
             subject: `Nouveau message de ${name}`,
-            text: `Vous avez reçu un nouveau message depuis votre formulaire de contact.\n\nType de client: ${clientType}\nNom: ${name}\nEmail: ${email}\nTéléphone: ${phone}\nType(s) de demande: ${requestType.join(', ')}\n\nMessage:\n${message}`,
+            text: `Vous avez reçu un nouveau message depuis votre formulaire de contact.\n\nType de client: ${clientType}\nNom: ${name}\nEmail: ${email}\nTéléphone: ${phone}\nType(s) de demande: ${requestType.join(", ")}\n\nMessage:\n${message}`,
             html: `<h2>Nouveau message de contact</h2>
                    <h3>Détails du contact</h3>
                    <ul>
@@ -59,7 +69,7 @@ export const sendEmail = async (req: Request, res: Response) => {
                      <li><strong>Nom:</strong> ${name}</li>
                      <li><strong>Email:</strong> ${email}</li>
                      <li><strong>Téléphone:</strong> ${phone}</li>
-                     <li><strong>Type(s) de demande:</strong> ${requestType.join(', ')}</li>
+                     <li><strong>Type(s) de demande:</strong> ${requestType.join(", ")}</li>
                    </ul>
                    <h3>Message</h3>
                    <p>${message}</p>`,
@@ -68,13 +78,13 @@ export const sendEmail = async (req: Request, res: Response) => {
         // 3. Send the email
         await transporter.sendMail(mailOptions);
 
-        res.status(200).json({ message: 'Message envoyé avec succès !' });
-
+        res.status(200).json({ message: "Message envoyé avec succès !" });
     } catch (error) {
-        console.error('Erreur lors de l\'envoi de l\'e-mail:', error);
+        console.error("Erreur lors de l'envoi de l'e-mail:", error);
         res.status(500).json({
-            message: 'Une erreur est survenue lors de l\'envoi de l\'e-mail.',
-            error: error instanceof Error ? error.toString() : 'Erreur inconnue',
+            message: "Une erreur est survenue lors de l'envoi de l'e-mail.",
+            error:
+                error instanceof Error ? error.toString() : "Erreur inconnue",
         });
     }
 };
