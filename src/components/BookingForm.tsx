@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Formik, Field, Form, ErrorMessage, useFormikContext } from "formik";
 import * as Yup from "yup";
 import styled from "styled-components";
+import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
 
 import type { BookingInfo } from "../types/booking";
+
+const libraries: ("places")[] = ["places"];
 
 // Define the type for the form values based on BookingInfo, omitting 'vehicule'
 export type FormikValues = Omit<BookingInfo, "vehicule">;
@@ -111,6 +114,39 @@ const ErrorText = styled.div`
     margin-top: 0.25rem;
 `;
 
+// Component for Google Places Autocomplete integrated with Formik
+const PlacesAutocompleteField: React.FC<{
+    name: string;
+    placeholder?: string;
+    isLoaded: boolean;
+}> = ({ name, placeholder, isLoaded }) => {
+    const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+    const { setFieldValue } = useFormikContext();
+
+    const onLoad = (autocomplete: google.maps.places.Autocomplete) => {
+        autocompleteRef.current = autocomplete;
+    };
+
+    const onPlaceChanged = () => {
+        if (autocompleteRef.current) {
+            const place = autocompleteRef.current.getPlace();
+            if (place.formatted_address) {
+                setFieldValue(name, place.formatted_address);
+            }
+        }
+    };
+
+    if (!isLoaded) {
+        return <Field type="text" name={name} as={Input} placeholder={placeholder} />;
+    }
+
+    return (
+        <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
+            <Field type="text" name={name} as={Input} placeholder={placeholder} />
+        </Autocomplete>
+    );
+};
+
 // Helper component to observe Formik's values and sync them with the parent state
 const FormikObserver: React.FC<{
     setFormValues: (values: FormikValues) => void;
@@ -128,6 +164,12 @@ type BookingFormProps = {
 };
 
 const BookingForm: React.FC<BookingFormProps> = ({ onFormChange }) => {
+    const { isLoaded } = useJsApiLoader({
+        id: "google-map-script",
+        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY!,
+        libraries: libraries,
+    });
+
     const initialValues: FormikValues = {
         date: "",
         heure: "",
@@ -188,10 +230,10 @@ const BookingForm: React.FC<BookingFormProps> = ({ onFormChange }) => {
                                 <Row>
                                     <FormField>
                                         <Label>Lieu de départ</Label>
-                                        <Field
-                                            type="text"
+                                        <PlacesAutocompleteField
                                             name="depart"
-                                            as={Input}
+                                            placeholder="Entrez votre adresse de départ"
+                                            isLoaded={isLoaded}
                                         />
                                         <ErrorMessage
                                             name="depart"
@@ -200,10 +242,10 @@ const BookingForm: React.FC<BookingFormProps> = ({ onFormChange }) => {
                                     </FormField>
                                     <FormField>
                                         <Label>Lieu d'arrivée</Label>
-                                        <Field
-                                            type="text"
+                                        <PlacesAutocompleteField
                                             name="arrivee"
-                                            as={Input}
+                                            placeholder="Entrez votre adresse d'arrivée"
+                                            isLoaded={isLoaded}
                                         />
                                         <ErrorMessage
                                             name="arrivee"
