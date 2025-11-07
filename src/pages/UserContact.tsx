@@ -284,7 +284,7 @@ export default function UserContact() {
 
                         <Button
                             onClick={handleSubmit}
-                            variant="primary"
+                            variant="secondary"
                             size="large"
                             type="submit"
                         >

@@ -36,58 +36,61 @@ npm run test:verbose
 ### MongoDB (Mongoose)
 
 ```typescript
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
-import { createMockMongoose, createMockModel } from './utils/mockMongoose.js';
+import { jest, describe, it, expect, beforeEach } from "@jest/globals";
+import { createMockMongoose, createMockModel } from "./utils/mockMongoose.js";
 
-describe('MongoDB Tests', () => {
-  let mockMongoose: ReturnType<typeof createMockMongoose>;
+describe("MongoDB Tests", () => {
+    let mockMongoose: ReturnType<typeof createMockMongoose>;
 
-  beforeEach(() => {
-    mockMongoose = createMockMongoose();
-    jest.clearAllMocks();
-  });
+    beforeEach(() => {
+        mockMongoose = createMockMongoose();
+        jest.clearAllMocks();
+    });
 
-  it('should connect', async () => {
-    await mockMongoose.connect('mongodb://localhost:27017/test');
-    expect(mockMongoose.connect).toHaveBeenCalled();
-  });
+    it("should connect", async () => {
+        await mockMongoose.connect("mongodb://localhost:27017/test");
+        expect(mockMongoose.connect).toHaveBeenCalled();
+    });
 
-  it('should use a model', async () => {
-    const MockModel = createMockModel();
-    const result = await MockModel.create({ name: 'Test' });
-    expect(MockModel.create).toHaveBeenCalled();
-  });
+    it("should use a model", async () => {
+        const MockModel = createMockModel();
+        const result = await MockModel.create({ name: "Test" });
+        expect(MockModel.create).toHaveBeenCalled();
+    });
 });
 ```
 
 ### Stripe
 
 ```typescript
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
-import { createMockStripe, createMockPaymentIntent } from './utils/mockStripe.js';
+import { jest, describe, it, expect, beforeEach } from "@jest/globals";
+import {
+    createMockStripe,
+    createMockPaymentIntent,
+} from "./utils/mockStripe.js";
 
-describe('Stripe Tests', () => {
-  let mockStripe: ReturnType<typeof createMockStripe>;
+describe("Stripe Tests", () => {
+    let mockStripe: ReturnType<typeof createMockStripe>;
 
-  beforeEach(() => {
-    mockStripe = createMockStripe();
-    jest.clearAllMocks();
-  });
-
-  it('should create payment intent', async () => {
-    const intent = await mockStripe.paymentIntents.create({
-      amount: 5000,
-      currency: 'eur',
+    beforeEach(() => {
+        mockStripe = createMockStripe();
+        jest.clearAllMocks();
     });
-    
-    expect(mockStripe.paymentIntents.create).toHaveBeenCalled();
-    expect(intent.id).toBeDefined();
-  });
 
-  it('should use factory', () => {
-    const intent = createMockPaymentIntent({ amount: 10000 });
-    expect(intent.amount).toBe(10000);
-  });
+    it("should create payment intent", async () => {
+        const intent = await mockStripe.paymentIntents.create({
+            amount: 5000,
+            currency: "eur",
+        });
+
+        expect(mockStripe.paymentIntents.create).toHaveBeenCalled();
+        expect(intent.id).toBeDefined();
+    });
+
+    it("should use factory", () => {
+        const intent = createMockPaymentIntent({ amount: 10000 });
+        expect(intent.amount).toBe(10000);
+    });
 });
 ```
 
@@ -107,33 +110,33 @@ Les variables suivantes sont automatiquement définies dans `jest.setup.ts`:
 ## Exemple de Test pour un Controller
 
 ```typescript
-import request from 'supertest';
-import express from 'express';
-import paymentRoutes from '../routes/payment';
+import request from "supertest";
+import express from "express";
+import paymentRoutes from "../routes/payment";
 
-jest.mock('stripe');
-jest.mock('mongoose');
+jest.mock("stripe");
+jest.mock("mongoose");
 
-describe('Payment Controller', () => {
-  let app: express.Application;
+describe("Payment Controller", () => {
+    let app: express.Application;
 
-  beforeEach(() => {
-    app = express();
-    app.use(express.json());
-    app.use('/api/payment', paymentRoutes);
-  });
+    beforeEach(() => {
+        app = express();
+        app.use(express.json());
+        app.use("/api/payment", paymentRoutes);
+    });
 
-  it('should create payment intent', async () => {
-    const response = await request(app)
-      .post('/api/payment/create-payment-intent')
-      .send({
-        amount: 5000,
-        currency: 'eur',
-      });
+    it("should create payment intent", async () => {
+        const response = await request(app)
+            .post("/api/payment/create-payment-intent")
+            .send({
+                amount: 5000,
+                currency: "eur",
+            });
 
-    expect(response.status).toBe(200);
-    expect(response.body.clientSecret).toBeDefined();
-  });
+        expect(response.status).toBe(200);
+        expect(response.body.clientSecret).toBeDefined();
+    });
 });
 ```
 

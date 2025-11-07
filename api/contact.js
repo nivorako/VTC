@@ -1,6 +1,12 @@
 // api/contact.js - Vercel serverless function
 import nodemailer from "nodemailer";
 
+/**
+ * Vercel serverless function to handle contact form submissions
+ * @param {Request} req - The request object
+ * @param {Response} res - The response object
+ * @returns {Promise<void>} - A promise that resolves when the function is done
+ */
 export default async function handler(req, res) {
     // Enable CORS
     res.setHeader("Access-Control-Allow-Credentials", true);

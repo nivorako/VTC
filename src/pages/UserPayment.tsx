@@ -405,7 +405,7 @@ const PaymentForm = () => {
                             <Button
                                 type="submit"
                                 disabled={!stripe || loading}
-                                variant="primary"
+                                variant="secondary"
                             >
                                 {loading ? "Traitement..." : "Payer maintenant"}
                             </Button>

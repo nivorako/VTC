@@ -159,7 +159,7 @@ export default function BookingCar() {
                     state={{ bookingDetails: formValues, distance, totalPrice }}
                 >
                     <Button
-                        variant="primary"
+                        variant="secondary"
                         size="medium"
                         disabled={!selectedCar}
                     >
