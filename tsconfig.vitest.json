@@ -8,6 +8,8 @@
         "jsx": "react-jsx"
     },
     "include": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
         "src/**/*.test.ts",
         "src/**/*.test.tsx",
         "src/**/*.spec.ts",
