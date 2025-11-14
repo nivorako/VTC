@@ -1,10 +1,11 @@
 import styled from "styled-components";
 import backgroundIMG from "../assets/voiture.webp";
+import VTCClientIMG from "../assets/VTCClient.png";
 import { theme } from "../styles/theme";
 import React from "react";
 import { Button } from "../components/Button";
 
-// Images des services (à remplacer par les vôtres)
+ //Images des services (à remplacer par les vôtres)
 import service1 from "../assets/services/airport.jpg";
 import service2 from "../assets/services/tour.jpg";
 import service3 from "../assets/services/local.jpg";
@@ -87,6 +88,44 @@ const Home = () => {
                 </Button>
             </HeroSection>
 
+            <ServiceQualitySection>
+                <QualityTitle>
+                    Nous veillions à ce que chacun de vos voyages soit
+                    confortable
+                </QualityTitle>
+                <QualityContent>
+                    <QualityImageWrapper>
+                        <QualityImage
+                            src={VTCClientIMG}
+                            alt="Client VTC confortable"
+                        />
+                    </QualityImageWrapper>
+                    <QualityTextWrapper>
+                        <QualityText>
+                            Chaque trajet avec VexinVTC. est soigneusement conçu
+                            pour vous offrir un confort absolu et une sécurité
+                            optimale. Nous mettons à votre disposition des
+                            véhicules haut de gamme, modernes et parfaitement
+                            entretenus, conduits par des chauffeurs
+                            professionnels et expérimentés.
+                        </QualityText>
+                        <QualityText>
+                            Profitez d'une expérience unique où chaque détail
+                            compte. Nos véhicules, spacieux et élégants, sont
+                            équipés pour répondre à toutes vos attentes :
+                            transferts professionnels, navettes aéroport, ou
+                            trajets personnels, nous sommes prêts à vous
+                            accompagner.
+                        </QualityText>
+                    </QualityTextWrapper>
+                </QualityContent>
+                <ButtonWrapper>
+                    <Button to="/booking" variant="primary" size="large">
+                        Réservez votre VTC
+                    </Button>
+                </ButtonWrapper>
+            </ServiceQualitySection>
+
             <ServicesSection>
                 <SectionTitle>Nos services VTC</SectionTitle>
                 <ServicesGrid>
@@ -99,17 +138,15 @@ const Home = () => {
                             <ServiceContent>
                                 <h3>{service.title}</h3>
                                 <p>{service.description}</p>
-                                <Button
-                                    to="/booking"
-                                    variant="primary"
-                                    size="medium"
-                                >
-                                    Réservez votre VTC
-                                </Button>
                             </ServiceContent>
                         </ServiceCard>
                     ))}
                 </ServicesGrid>
+                <ButtonWrapper>
+                    <Button to="/booking" variant="primary" size="large">
+                        Réservez votre VTC
+                    </Button>
+                </ButtonWrapper>
             </ServicesSection>
 
             <TestimonialsSection>
@@ -334,6 +371,88 @@ const AdditionalTestimonials = styled.div`
     @media (max-width: 768px) {
         grid-template-columns: 1fr;
     }
+`;
+
+const ServiceQualitySection = styled.section`
+    padding: 5rem 2rem;
+    background-color: white;
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    box-sizing: border-box;
+`;
+
+const QualityTitle = styled.h2`
+    text-align: center;
+    color: ${theme.colors.text};
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 4rem;
+    line-height: 1.2;
+    padding: 0 1rem;
+
+    @media (max-width: 768px) {
+        font-size: 2rem;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+    }
+`;
+
+const QualityContent = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+
+    @media (max-width: 968px) {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+`;
+
+const QualityImageWrapper = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const QualityImage = styled.img`
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    object-fit: cover;
+`;
+
+const QualityTextWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+`;
+
+const QualityText = styled.p`
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: ${theme.colors.text};
+    text-align: left;
+
+    @media (max-width: 480px) {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+`;
+
+const ButtonWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+    width: 100%;
 `;
 
 const SectionTitle = styled.h2`
