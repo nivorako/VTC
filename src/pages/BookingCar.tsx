@@ -306,14 +306,14 @@ const Car = styled.div`
 `;
 
 const CarImage = styled.img`
-    width: 60%;
-    height: 100%;
+    width: 30%;
+    height: 30%;
     object-fit: contain;
     @media (max-width: 1024px) {
-        width: 50%;
+        width: 20%;
     }
     @media (max-width: 768px) {
-        width: 40%;
+        width: 20%;
     }
 `;
 
