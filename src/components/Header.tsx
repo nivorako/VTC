@@ -97,7 +97,7 @@ function Header() {
             <Nav>
                 <StyledNavLink to="/contact">Contact</StyledNavLink>
                 <StyledNavLink to="/services">Services</StyledNavLink>
-                <StyledNavLink to="/mentions">Mentions</StyledNavLink>
+                <StyledNavLink to="/connexion">Connexion</StyledNavLink>
             </Nav>
             <MenuIcon onClick={handleClick} />
             {isOpen && (
@@ -109,8 +109,8 @@ function Header() {
                     <StyledNavLink to="/services" onClick={handleClick}>
                         Services
                     </StyledNavLink>
-                    <StyledNavLink to="/mentions" onClick={handleClick}>
-                        Mentions
+                    <StyledNavLink to="/connexion" onClick={handleClick}>
+                        Connexion
                     </StyledNavLink>
                 </MobileMenu>
             )}

@@ -4,6 +4,7 @@ import VTCClientIMG from "../assets/VTCClient.png";
 import { theme } from "../styles/theme";
 import React from "react";
 import { Button } from "../components/Button";
+import { Link } from "react-router-dom";
 
  //Images des services (à remplacer par les vôtres)
 import service1 from "../assets/services/airport.jpg";
@@ -130,7 +131,11 @@ const Home = () => {
                 <SectionTitle>Nos services VTC</SectionTitle>
                 <ServicesGrid>
                     {services.map((service) => (
-                        <ServiceCard key={service.id}>
+                        <ServiceCard 
+                            key={service.id}
+                            as={Link}
+                            to="/services"
+                        >
                             <ServiceImage
                                 src={service.image}
                                 alt={service.alt}
@@ -517,6 +522,9 @@ const ServiceCard = styled.article`
         box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
 
     &:hover {
         transform: translateY(-5px);

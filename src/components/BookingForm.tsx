@@ -3,6 +3,7 @@ import { Formik, Field, Form, ErrorMessage, useFormikContext } from "formik";
 import * as Yup from "yup";
 import styled from "styled-components";
 import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+import { FaMapMarkerAlt, FaCalendarAlt, FaClock } from "react-icons/fa";
 
 import type { BookingInfo } from "../types/booking";
 
@@ -17,21 +18,15 @@ const ReservationSchema = Yup.object().shape({
     depart: Yup.string().required("Lieu de départ obligatoire"),
     arrivee: Yup.string().required("Lieu d'arrivée obligatoire"),
     typeTrajet: Yup.string().required("Choix type trajet obligatoire"),
-    passagersAdultes: Yup.number()
-        .min(1, "Au moins 1 adulte")
-        .required("Obligatoire"),
-    passagersEnfants: Yup.number().min(0, "Obligatoire"),
 });
 
 const FormContainer = styled.div`
     width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: column;
-    border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     z-index: 2;
-    background: rgb(13, 84, 155);
+    background: white;
     box-sizing: border-box;
     @media (max-width: 768px) {
         width: 100%;
@@ -42,70 +37,95 @@ const FormContainer = styled.div`
 const StyledForm = styled(Form)`
     display: flex;
     flex-direction: column;
-    height: 100%;
+    gap: 1rem;
     width: 100%;
 `;
 
-const Section = styled.div`
-    padding: 1rem;
-    background: #f8f9fa;
-    flex: 1;
-    overflow-y: auto;
-`;
-
-const SectionTitle = styled.h3`
-    color: #333;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid #eee;
-    font-size: 1.1rem;
-`;
 
 const Row = styled.div`
     display: flex;
     gap: 0.75rem;
-    margin-bottom: 1rem;
 
-    @media (max-width: 1224px) {
+    @media (max-width: 768px) {
         flex-direction: column;
     }
 `;
 
 const FormField = styled.div`
     flex: 1;
-    margin-bottom: 1rem;
+    position: relative;
+`;
 
-    &:last-child {
-        margin-bottom: 0;
+const FullWidthFormField = styled.div`
+    width: 100%;
+    position: relative;
+    flex: 1;
+    box-sizing: border-box;
+`;
+
+const InputWrapper = styled.div`
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+`;
+
+const AutocompleteWrapper = styled.div`
+    width: 100%;
+    box-sizing: border-box;
+    
+    & > div {
+        width: 100% !important;
     }
 `;
 
-const Label = styled.label`
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #555;
-    font-weight: 500;
-    font-size: 0.9rem;
+const IconWrapper = styled.div`
+    position: absolute;
+    left: 1rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    z-index: 1;
 `;
 
 const Input = styled.input`
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.75rem 0.75rem 0.75rem 2.75rem;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    background-color: #f8f9fa;
+    box-sizing: border-box;
 
     &:focus {
         outline: none;
         border-color: #4a90e2;
         box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        background-color: white;
+    }
+
+    &::placeholder {
+        color: #999;
     }
 `;
 
 const Select = styled.select`
-    ${Input}
-    background-color: white;
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    background-color: #f8f9fa;
     cursor: pointer;
+
+    &:focus {
+        outline: none;
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        background-color: white;
+    }
 `;
 
 const ErrorText = styled.div`
@@ -119,7 +139,8 @@ const PlacesAutocompleteField: React.FC<{
     name: string;
     placeholder?: string;
     isLoaded: boolean;
-}> = ({ name, placeholder, isLoaded }) => {
+    icon: React.ReactNode;
+}> = ({ name, placeholder, isLoaded, icon }) => {
     const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
     const { setFieldValue } = useFormikContext();
 
@@ -137,13 +158,23 @@ const PlacesAutocompleteField: React.FC<{
     };
 
     if (!isLoaded) {
-        return <Field type="text" name={name} as={Input} placeholder={placeholder} />;
+        return (
+            <InputWrapper>
+                <IconWrapper>{icon}</IconWrapper>
+                <Field type="text" name={name} as={Input} placeholder={placeholder} />
+            </InputWrapper>
+        );
     }
 
     return (
-        <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
-            <Field type="text" name={name} as={Input} placeholder={placeholder} />
-        </Autocomplete>
+        <InputWrapper>
+            <IconWrapper>{icon}</IconWrapper>
+            <AutocompleteWrapper>
+                <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
+                    <Field type="text" name={name} as={Input} placeholder={placeholder} />
+                </Autocomplete>
+            </AutocompleteWrapper>
+        </InputWrapper>
     );
 };
 
@@ -170,14 +201,23 @@ const BookingForm: React.FC<BookingFormProps> = ({ onFormChange }) => {
         libraries: libraries,
     });
 
+    // Obtenir la date et l'heure actuelles
+    const getTodayDate = () => {
+        const today = new Date();
+        return today.toISOString().split('T')[0];
+    };
+
+    const getCurrentTime = () => {
+        const now = new Date();
+        return now.toTimeString().slice(0, 5);
+    };
+
     const initialValues: FormikValues = {
-        date: "",
-        heure: "",
+        date: getTodayDate(),
+        heure: getCurrentTime(),
         depart: "",
         arrivee: "",
-        typeTrajet: "",
-        passagersAdultes: 1,
-        passagersEnfants: 0,
+        typeTrajet: "simple",
     };
 
     const [formValues, setFormValues] = useState(initialValues);
@@ -198,114 +238,79 @@ const BookingForm: React.FC<BookingFormProps> = ({ onFormChange }) => {
                         <StyledForm>
                             <FormikObserver setFormValues={setFormValues} />
 
-                            <Section>
-                                <SectionTitle>Détails du trajet</SectionTitle>
-                                <Row>
-                                    <FormField>
-                                        <Label>Date de départ</Label>
+                            <FullWidthFormField>
+                                <PlacesAutocompleteField
+                                    name="depart"
+                                    placeholder="Lieu de départ"
+                                    isLoaded={isLoaded}
+                                    icon={<FaMapMarkerAlt />}
+                                />
+                                <ErrorMessage
+                                    name="depart"
+                                    component={ErrorText}
+                                />
+                            </FullWidthFormField>
+
+                            <FullWidthFormField>
+                                <PlacesAutocompleteField
+                                    name="arrivee"
+                                    placeholder="Lieu d'arrivée"
+                                    isLoaded={isLoaded}
+                                    icon={<FaMapMarkerAlt />}
+                                />
+                                <ErrorMessage
+                                    name="arrivee"
+                                    component={ErrorText}
+                                />
+                            </FullWidthFormField>
+
+                            <Row>
+                                <FormField>
+                                    <InputWrapper>
+                                        <IconWrapper>
+                                            <FaCalendarAlt />
+                                        </IconWrapper>
                                         <Field
                                             type="date"
                                             name="date"
                                             as={Input}
                                         />
-                                        <ErrorMessage
-                                            name="date"
-                                            component={ErrorText}
-                                        />
-                                    </FormField>
-                                    <FormField>
-                                        <Label>Heure de départ</Label>
+                                    </InputWrapper>
+                                    <ErrorMessage
+                                        name="date"
+                                        component={ErrorText}
+                                    />
+                                </FormField>
+                                <FormField>
+                                    <InputWrapper>
+                                        <IconWrapper>
+                                            <FaClock />
+                                        </IconWrapper>
                                         <Field
                                             type="time"
                                             name="heure"
                                             as={Input}
                                         />
-                                        <ErrorMessage
-                                            name="heure"
-                                            component={ErrorText}
-                                        />
-                                    </FormField>
-                                </Row>
-
-                                <Row>
-                                    <FormField>
-                                        <Label>Lieu de départ</Label>
-                                        <PlacesAutocompleteField
-                                            name="depart"
-                                            placeholder="Entrez votre adresse de départ"
-                                            isLoaded={isLoaded}
-                                        />
-                                        <ErrorMessage
-                                            name="depart"
-                                            component={ErrorText}
-                                        />
-                                    </FormField>
-                                    <FormField>
-                                        <Label>Lieu d'arrivée</Label>
-                                        <PlacesAutocompleteField
-                                            name="arrivee"
-                                            placeholder="Entrez votre adresse d'arrivée"
-                                            isLoaded={isLoaded}
-                                        />
-                                        <ErrorMessage
-                                            name="arrivee"
-                                            component={ErrorText}
-                                        />
-                                    </FormField>
-                                </Row>
-                            </Section>
-
-                            <Section>
-                                <SectionTitle>Passagers</SectionTitle>
-                                <Row>
-                                    <FormField>
-                                        <Label>Adultes</Label>
-                                        <Field
-                                            type="number"
-                                            name="passagersAdultes"
-                                            min="1"
-                                            as={Input}
-                                        />
-                                        <ErrorMessage
-                                            name="passagersAdultes"
-                                            component={ErrorText}
-                                        />
-                                    </FormField>
-                                    <FormField>
-                                        <Label>Enfants</Label>
-                                        <Field
-                                            type="number"
-                                            name="passagersEnfants"
-                                            min="0"
-                                            as={Input}
-                                        />
-                                        <ErrorMessage
-                                            name="passagersEnfants"
-                                            component={ErrorText}
-                                        />
-                                    </FormField>
-                                </Row>
-                            </Section>
-
-                            <Section>
-                                <SectionTitle>Type de trajet</SectionTitle>
-                                <FormField>
-                                    <Label>Type de trajet</Label>
-                                    <Field name="typeTrajet" as={Select}>
-                                        <option value="">
-                                            Sélectionnez un type
-                                        </option>
-                                        <option value="simple">Simple</option>
-                                        <option value="aller-retour">
-                                            Aller-retour
-                                        </option>
-                                    </Field>
+                                    </InputWrapper>
                                     <ErrorMessage
-                                        name="typeTrajet"
+                                        name="heure"
                                         component={ErrorText}
                                     />
                                 </FormField>
-                            </Section>
+                            </Row>
+
+                            <FormField>
+                                <Field name="typeTrajet" as={Select}>
+                                    <option value="simple">Simple</option>
+                                    <option value="aller-retour">
+                                        Aller-retour
+                                    </option>
+                                </Field>
+                                <ErrorMessage
+                                    name="typeTrajet"
+                                    component={ErrorText}
+                                />
+                            </FormField>
                         </StyledForm>
                     );
                 }}

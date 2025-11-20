@@ -1,7 +1,11 @@
 import styled from "styled-components";
 import backgroundIMG from "../assets/voiture.webp";
 
-const MentionSection = styled.section`
+const ConnexionSection = styled.section`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     background-image: url(${backgroundIMG});
     background-size: cover;
     background-position: center;
@@ -21,10 +25,11 @@ const MentionSection = styled.section`
         z-index: 1;
     }
 `;
-export default function Mentions() {
+export default function Connexion() {
     return (
-        <MentionSection>
-            <h1>Mentions</h1>
-        </MentionSection>
+        <ConnexionSection>
+            <h1 style={{zIndex: 2}}>Connexion</h1>
+            <h2 style={{zIndex: 2}}>PAGE EN COURS DE TRAVAIL</h2>
+        </ConnexionSection>
     );
 }

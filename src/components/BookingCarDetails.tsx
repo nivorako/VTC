@@ -1,6 +1,9 @@
 import styled from "styled-components";
 import type { BookingInfo } from "../types/booking";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { theme } from "../styles/theme";
+import { ArrowLeft } from "lucide-react";
 
 interface BookingCarDetailsProps {
     bookingInfo: BookingInfo;
@@ -11,13 +14,13 @@ interface BookingCarDetailsProps {
 
 const DetailsWrapper = styled.div`
     width: 100%;
-    height: 100%; /* Prend toute la hauteur de son parent */
     display: flex;
     flex-direction: column;
     background: white;
     padding: 1.5rem;
     border-radius: 10px; /* Coins arrondis */
     box-sizing: border-box;
+    position: relative;
 
     h2 {
         text-align: center;
@@ -43,18 +46,42 @@ const DetailLabel = styled.span`
     margin-right: 1rem;
 `;
 
-const PriceSection = styled.div`
-    margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+const ModifyButton = styled.button`
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: ${theme.colors.background};
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: ${theme.colors.primaryDark};
+        transform: translateX(-2px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active {
+        transform: translateX(0);
+    }
+
+    @media (max-width: 768px) {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
 `;
 
 /**
  * BookingCarDetails component displays the details of a booking,
- * including date, time, departure and arrival, type of trip, number of passengers,
+ * including date, time, departure and arrival, type of trip,
  * vehicle and distance.
  * It also calculates the total price based on the distance and the type of vehicle.
  * The price is displayed at the bottom of the component.
@@ -66,6 +93,7 @@ const BookingCarDetails: React.FC<BookingCarDetailsProps> = ({
     distance,
     onPriceCalculated,
 }) => {
+    const navigate = useNavigate();
     // Extraire la distance en chiffres
     const distanceNumber = parseFloat(distance.replace(/[^\d.]/g, ""));
 
@@ -127,31 +155,15 @@ const BookingCarDetails: React.FC<BookingCarDetailsProps> = ({
                 </DetailItem>
 
                 <DetailItem>
-                    <DetailLabel>Type de trajet:</DetailLabel>
-                    {bookingInfo.typeTrajet}
-                </DetailItem>
-
-                <DetailItem>
-                    <DetailLabel>Passagers:</DetailLabel>
-                    {bookingInfo.passagersAdultes} Adultes,{" "}
-                    {bookingInfo.passagersEnfants} Enfants
-                </DetailItem>
-
-                <DetailItem>
-                    <DetailLabel>Véhicule:</DetailLabel>
-                    {bookingInfo.vehicule || "Non sélectionné"}
-                </DetailItem>
-
-                <DetailItem>
                     <DetailLabel>Distance parcourue:</DetailLabel>
                     {distance || "N/A"}
                 </DetailItem>
             </DetailsSection>
-
-            <PriceSection>
-                <span>TOTAL</span>
-                <span>{totalPrice.toFixed(2)} €</span>
-            </PriceSection>
+            
+            <ModifyButton onClick={() => navigate("/booking", { state: { bookingDetails: bookingInfo, distance } })}>
+                <ArrowLeft size={16} />
+                Modifier détails
+            </ModifyButton>
         </DetailsWrapper>
     );
 };

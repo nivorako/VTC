@@ -4,7 +4,5 @@ export type BookingInfo = {
     depart: string;
     arrivee: string;
     typeTrajet: string;
-    passagersAdultes: number;
-    passagersEnfants: number;
     vehicule: string | null;
 };

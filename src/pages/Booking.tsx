@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { theme } from "../styles/theme";
 import BookingForm from "../components/BookingForm";
-import MapWithRoute from "../components/MapWithRoute";
+// import MapWithRoute from "../components/MapWithRoute";
 import { Button } from "../components/Button";
 import { useRef, useState, useEffect } from "react";
 import type { BookingInfo } from "../types/booking";
@@ -18,8 +18,6 @@ const Booking = () => {
         depart: "",
         arrivee: "",
         typeTrajet: "",
-        passagersAdultes: 1,
-        passagersEnfants: 0,
     });
 
     // Valeur débauncée des données du formulaire
@@ -27,15 +25,13 @@ const Booking = () => {
 
     const navigate = useNavigate();
     const buttonRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
-    const [routeInfo, setRouteInfo] = useState({ distance: "", duration: "" });
+    const [routeInfo, _setRouteInfo] = useState({ distance: "", duration: "" });
     const [formValues, setFormValues] = useState<BookingInfo>({
         date: "",
         heure: "",
         depart: "",
         arrivee: "",
         typeTrajet: "",
-        passagersAdultes: 1,
-        passagersEnfants: 0,
         vehicule: null,
     });
 
@@ -51,12 +47,6 @@ const Booking = () => {
         }));
     }, [debouncedFormValuesFromHook]);
 
-    const handleRouteCalculated = (routeData: {
-        distance: string;
-        duration: string;
-    }) => {
-        setRouteInfo(routeData);
-    };
 
     // Déterminer si le formulaire est valide en dérivant l'état.
     const isFormValid = Boolean(
@@ -90,13 +80,6 @@ const Booking = () => {
                     <BookingForm onFormChange={handleFormChange} />
                     {/* <div style={{ border: '1px dashed blue', padding: '10px', color: 'blue', background: 'rgba(0,0,255,0.1)' }}>Placeholder pour BookingForm</div> */}
                 </BookingFormContainer>
-                <Maps>
-                    <MapWithRoute
-                        depart={formValues.depart}
-                        arrivee={formValues.arrivee}
-                        onRouteCalculated={handleRouteCalculated}
-                    />
-                </Maps>
             </BookingContainer>
             <Button
                 ref={buttonRef}
@@ -118,7 +101,7 @@ const Booking = () => {
                 }}
                 type="button"
             >
-                Choisir un véhicule
+                Consulter les prix
             </Button>
         </Section>
     );
@@ -138,7 +121,7 @@ const Section = styled.section`
     box-sizing: border-box;
     max-width: 1440px;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     margin: auto;
     padding: 0 10px 20px;
     text-align: center;
@@ -175,29 +158,14 @@ const BookingContainer = styled.div`
 
 const BookingFormContainer = styled.div`
     width: 40%;
-    height: 650px;
+    //height: 650px;
     overflow-y: auto;
-    border: 20px solid #fff;
+    border: 10px solid #fff;
     border-radius: 10px;
     @media (max-width: 768px) {
         width: 80%;
         min-height: auto;
         height: auto;
-    }
-`;
-
-const Maps = styled.div`
-    width: 40%;
-    height: 650px;
-    background: white;
-    border-radius: 10px;
-    border: 20px solid #fff;
-    z-index: 2;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    @media (max-width: 768px) {
-        width: 80%;
     }
 `;
 

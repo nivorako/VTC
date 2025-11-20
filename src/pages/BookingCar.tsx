@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { Check } from "lucide-react";
 import { theme } from "../styles/theme";
-import { Button } from "../components/Button";
 import BookingCarDetails from "../components/BookingCarDetails";
+import MapWithRoute from "../components/MapWithRoute";
 import type { BookingInfo } from "../types/booking";
 
 import berlineImg from "../assets/berline.webp";
@@ -13,7 +14,7 @@ import vanImg from "../assets/van.webp";
 /**
  * Component for booking a car.
  * The component displays a form with options for date, time, departure and arrival,
- * type of trip, number of passengers and vehicle type.
+ * type of trip and vehicle type.
  * The component also displays the total price.
  * The user can select a car and the component will update the form with the selected car type.
  * The component also displays a button to go to the previous page and a button to go to the next page.
@@ -21,6 +22,7 @@ import vanImg from "../assets/van.webp";
  */
 export default function BookingCar() {
     const location = useLocation();
+    const navigate = useNavigate();
     const [selectedCar, setSelectedCar] = useState<string | null>(null);
     const [distance, setDistance] = useState("");
     const [formValues, setFormValues] = useState<BookingInfo>({
@@ -29,11 +31,27 @@ export default function BookingCar() {
         depart: "",
         arrivee: "",
         typeTrajet: "",
-        passagersAdultes: 1,
-        passagersEnfants: 0,
         vehicule: null,
     });
     const [totalPrice, setTotalPrice] = useState<number>(0);
+
+    // Fonction pour calculer le prix en fonction du véhicule
+    const calculatePrice = useCallback((vehicleType: string): number => {
+        // Prix par type de véhicule (alignés avec BookingCarDetails)
+        const vehiclePrices: { [key: string]: number } = {
+            berline: 2, // 2€ par km
+            berlineLux: 3, // 3€ par km
+            van: 2.5, // 2.5€ par km
+        };
+        
+        const distanceNumber = parseFloat(distance.replace(/[^\d.]/g, ""));
+        const pricePerKm = vehiclePrices[vehicleType] || 0;
+        
+        if (!isNaN(distanceNumber) && pricePerKm > 0) {
+            return distanceNumber * pricePerKm;
+        }
+        return 0;
+    }, [distance]);
 
     useEffect(() => {
         if (location.state) {
@@ -59,114 +77,134 @@ export default function BookingCar() {
             ...prev,
             vehicule: carType,
         }));
+        // Mettre à jour le prix total avec le prix du véhicule sélectionné
+        setTotalPrice(calculatePrice(carType));
     };
 
     const handlePriceCalculated = (price: number) => {
         setTotalPrice(price);
     };
 
+    const handleRouteCalculated = (routeData: {
+        distance: string;
+        duration: string;
+    }) => {
+        // Mettre à jour la distance avec les données recalculées
+        if (routeData.distance) {
+            setDistance(routeData.distance);
+        }
+    };
+
+    // Recalculer le prix lorsque la distance change et qu'un véhicule est sélectionné
+    useEffect(() => {
+        if (selectedCar && distance) {
+            setTotalPrice(calculatePrice(selectedCar));
+        }
+    }, [distance, selectedCar, calculatePrice]);
+
+    const getVehicleName = (carType: string): string => {
+        const vehicleNames: { [key: string]: string } = {
+            berline: "Berline",
+            berlineLux: "Berline de luxe",
+            van: "Van",
+        };
+        return vehicleNames[carType] || carType;
+    };
+
     return (
         <Section>
-            <StyledH1>RESERVEZ UN VTC MAINTENANT</StyledH1>
+            <StyledH1>CHOISISSEZ VOTRE VEHICULE</StyledH1>
             <BookingCarContainer>
-                <BookingCarDetailsContainer>
-                    <BookingCarDetails
-                        bookingInfo={formValues}
-                        distance={distance}
-                        onPriceCalculated={handlePriceCalculated}
-                    />
-                </BookingCarDetailsContainer>
+                <LeftColumn>
+                    <BookingCarDetailsContainer>
+                        <BookingCarDetails
+                            bookingInfo={formValues}
+                            distance={distance}
+                            onPriceCalculated={handlePriceCalculated}
+                        />
+                    </BookingCarDetailsContainer>
+                    <MapsContainer>
+                        <MapWithRoute
+                            depart={formValues.depart}
+                            arrivee={formValues.arrivee}
+                            onRouteCalculated={handleRouteCalculated}
+                        />
+                    </MapsContainer>
+                </LeftColumn>
                 <CarChoices>
                     <Car
-                        style={{
-                            border:
-                                selectedCar === "berline"
-                                    ? `2px solid ${theme.colors.primaryDark}`
-                                    : "2px solid transparent",
-                        }}
+                        onClick={() => handleSelectCar("berline")}
+                        $isSelected={selectedCar === "berline"}
                     >
+                        {selectedCar === "berline" && (
+                            <CheckIcon>
+                                <Check size={24} color="white" />
+                            </CheckIcon>
+                        )}
                         <CarImage src={berlineImg} alt="berline" />
-                        <CarInfos>Infos</CarInfos>
-                        <CarChoice>
-                            <Button
-                                variant="primary"
-                                size="medium"
-                                onClick={() => {
-                                    handleSelectCar("berline");
-                                }}
-                            >
-                                Choisir
-                            </Button>
-                        </CarChoice>
+                        <CarInfos>
+                            <CarTitle>Berline</CarTitle>
+                            <CarDescription>vehicule hybride, bas carbonne</CarDescription>
+                        </CarInfos>
+                        <CarPriceInfo>
+                            <TripType>{formValues.typeTrajet === "aller-retour" ? "Aller et retour" : "Aller simple"}</TripType>
+                            <FinalPrice>{calculatePrice("berline") > 0 ? `${calculatePrice("berline").toFixed(2)} €` : "- €"}</FinalPrice>
+                        </CarPriceInfo>
                     </Car>
                     <Car
-                        style={{
-                            border:
-                                selectedCar === "berlineLux"
-                                    ? `2px solid ${theme.colors.primaryDark}`
-                                    : "2px solid transparent",
-                        }}
+                        onClick={() => handleSelectCar("berlineLux")}
+                        $isSelected={selectedCar === "berlineLux"}
                     >
+                        {selectedCar === "berlineLux" && (
+                            <CheckIcon>
+                                <Check size={24} color="white" />
+                            </CheckIcon>
+                        )}
                         <CarImage src={berlineLuxImg} alt="berlineLux" />
-                        <CarInfos>infos</CarInfos>
-                        <CarChoice>
-                            <Button
-                                variant="primary"
-                                size="medium"
-                                onClick={() => {
-                                    handleSelectCar("berlineLux");
-                                }}
-                            >
-                                Choisir
-                            </Button>
-                        </CarChoice>
+                        <CarInfos>
+                            <CarTitle>Berline de luxe</CarTitle>
+                            <CarDescription>vehicule haut de gamme ( Mercedes, BMW, Audi ...)</CarDescription>
+                        </CarInfos>
+                        <CarPriceInfo>
+                            <TripType>{formValues.typeTrajet === "aller-retour" ? "Aller et retour" : "Aller simple"}</TripType>
+                            <FinalPrice>{calculatePrice("berlineLux") > 0 ? `${calculatePrice("berlineLux").toFixed(2)} €` : "- €"}</FinalPrice>
+                        </CarPriceInfo>
                     </Car>
                     <Car
-                        style={{
-                            border:
-                                selectedCar === "van"
-                                    ? `2px solid ${theme.colors.primaryDark}`
-                                    : "2px solid transparent",
-                        }}
+                        onClick={() => handleSelectCar("van")}
+                        $isSelected={selectedCar === "van"}
                     >
+                        {selectedCar === "van" && (
+                            <CheckIcon>
+                                <Check size={24} color="white" />
+                            </CheckIcon>
+                        )}
                         <CarImage src={vanImg} alt="van" />
-                        <CarInfos>infos</CarInfos>
-                        <CarChoice>
-                            <Button
-                                variant="primary"
-                                size="medium"
-                                onClick={() => {
-                                    handleSelectCar("van");
-                                }}
-                            >
-                                Choisir
-                            </Button>
-                        </CarChoice>
+                        <CarInfos>
+                            <CarTitle>Van</CarTitle>
+                            <CarDescription>idéal pour les voyages en famille</CarDescription>
+                        </CarInfos>
+                        <CarPriceInfo>
+                            <TripType>{formValues.typeTrajet === "aller-retour" ? "Aller et retour" : "Aller simple"}</TripType>
+                            <FinalPrice>{calculatePrice("van") > 0 ? `${calculatePrice("van").toFixed(2)} €` : "- €"}</FinalPrice>
+                        </CarPriceInfo>
                     </Car>
                 </CarChoices>
             </BookingCarContainer>
-            <ButtonsContainer>
-                <Link
-                    to="/booking"
-                    state={{ bookingDetails: formValues, distance }}
-                >
-                    <Button variant="secondary" size="medium">
-                        Modifier les détails
-                    </Button>
-                </Link>
-                <Link
-                    to="/user-contact"
-                    state={{ bookingDetails: formValues, distance, totalPrice }}
-                >
-                    <Button
-                        variant="secondary"
-                        size="medium"
-                        disabled={!selectedCar}
+            {selectedCar && (
+                <FixedBottomBar>
+                    <VehicleInfo>
+                        {getVehicleName(selectedCar)} sélectionné
+                    </VehicleInfo>
+                    <ValidateButton
+                        onClick={() => navigate("/user-contact", {
+                            state: { bookingDetails: formValues, distance, totalPrice }
+                        })}
                     >
-                        Saisir les coordonnées
-                    </Button>
-                </Link>
-            </ButtonsContainer>
+                        Valider ({totalPrice.toFixed(2)}€)
+                    </ValidateButton>
+                </FixedBottomBar>
+            )}
         </Section>
     );
 }
@@ -213,83 +251,131 @@ const BookingCarContainer = styled.div`
     width: 100%;
     display: flex;
     justify-content: center;
-    align-items: stretch; /* Modified */
+    align-items: stretch;
     gap: 1rem;
     flex: 1;
-    min-height: 0; /* Prevents flexbox overflow */
+    min-height: 0;
     margin-bottom: 1rem;
     @media (max-width: 768px) {
         flex-direction: column;
-        /* Le gap est remplacé par une marge sur CarChoices pour un meilleur contrôle */
     }
 `;
 
-const BookingCarDetailsContainer = styled.div`
-    width: 30%;
+const LeftColumn = styled.div`
+    width: 50%;
     display: flex;
     flex-direction: column;
+    gap: 1rem;
 
-    @media (max-width: 1024px) {
-        width: 40%;
-    }
     @media (max-width: 768px) {
         width: 100%;
         order: 2;
     }
 `;
 
+const BookingCarDetailsContainer = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+`;
+
+const MapsContainer = styled.div`
+    width: 100%;
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    box-sizing: border-box;
+`;
+
 const CarChoices = styled.div`
-    width: 70%;
+    width: 50%;
     display: flex;
     justify-content: center;
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-    background: white;
-    padding: 1rem;
+    background: ${theme.colors.background};
+    //padding: 1rem;
     box-sizing: border-box;
     border-radius: 10px;
 
-    @media (max-width: 1024px) {
-        width: 60%;
-    }
     @media (max-width: 768px) {
         width: 100%;
         order: 1;
-        margin-bottom: 1rem; /* Ajout d'une marge pour l'espacement */
+        margin-bottom: 1rem;
     }
 `;
-const ButtonsContainer = styled.div`
+const FixedBottomBar = styled.div`
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 400px;
+    max-width: 600px;
+    width: fit-content;
+    border-radius: 10px;
+    background: ${theme.colors.primaryDark};
+    padding: 1rem 2rem;
     display: flex;
-    justify-content: space-between;
-    width: 100%;
-    padding: 1rem 0;
-    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
 
-    a {
-        text-decoration: none;
-        flex: 1;
-        display: flex;
+    @media (max-width: 768px) {
+        min-width: 150px;
+        max-width: 90%;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+    }
+`;
+
+const VehicleInfo = styled.div`
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+    
+    @media (max-width: 768px) {
+        font-size: 0.85rem;
+        text-align: center;
+        white-space: nowrap;
+    }
+`;
+
+const ValidateButton = styled.button`
+    background: white;
+    color: ${theme.colors.primaryDark};
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: ${theme.colors.background};
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
-    button {
-        width: 100%;
+    &:active {
+        transform: translateY(0);
     }
 
     @media (max-width: 768px) {
-        flex-direction: column;
-        align-items: center;
-
-        & > a {
-            width: 100%;
-            max-width: 400px;
-        }
+        width: auto;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        white-space: nowrap;
     }
 `;
 
-const Car = styled.div`
+const Car = styled.div<{ $isSelected: boolean }>`
     width: 100%;
-    flex: 1 1 auto; // Permet à chaque Car de prendre autant d'espace que possible
+    flex: 1 1 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -297,12 +383,38 @@ const Car = styled.div`
     border-radius: 10px;
     padding: 1rem;
     box-sizing: border-box;
-    overflow: hidden; // Pour éviter le débordement
-    transition: border-color 0.3s ease;
+    overflow: visible;
+    position: relative;
+    border: ${props => props.$isSelected 
+        ? `6px solid ${theme.colors.primaryDark}` 
+        : '6px solid transparent'};
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        border-color: ${theme.colors.primaryDark};
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
     @media (max-width: 768px) {
         min-height: 120px;
     }
+`;
+
+const CheckIcon = styled.div`
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: ${theme.colors.primaryDark};
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 10;
 `;
 
 const CarImage = styled.img`
@@ -318,25 +430,75 @@ const CarImage = styled.img`
 `;
 
 const CarInfos = styled.div`
-    width: 20%;
-    height: 100%;
+    width: 45%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    
+    @media (max-width: 768px) {
+        width: 50%;
+    }
 `;
 
-const CarChoice = styled.div`
-    width: 20%;
-    height: 100%;
+const CarTitle = styled.h3`
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: ${theme.colors.primaryDark};
+    margin: 0;
+    
+    @media (max-width: 768px) {
+        font-size: 1rem;
+    }
+`;
+
+const CarDescription = styled.p`
+    font-size: 0.9rem;
+    color: ${theme.colors.text};
+    margin: 0;
+    line-height: 1.4;
+    
+    @media (max-width: 768px) {
+        font-size: 0.8rem;
+    }
+`;
+
+const CarPriceInfo = styled.div`
+    width: 25%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-left: 1px solid #e0e0e0;
+    
     @media (max-width: 768px) {
-        button,
-        a {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
+        width: 30%;
+        padding: 0.25rem;
+    }
+`;
+
+const TripType = styled.div`
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: ${theme.colors.primaryDark};
+    text-align: center;
+    
+    @media (max-width: 768px) {
+        font-size: 0.75rem;
+    }
+`;
+
+const FinalPrice = styled.div`
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: ${theme.colors.primary};
+    text-align: center;
+    
+    @media (max-width: 768px) {
+        font-size: 1rem;
     }
 `;
