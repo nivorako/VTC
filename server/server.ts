@@ -37,6 +37,7 @@ import { errorHandler } from "./middlewares/errorHandler.middleware.js";
 // Import routes
 import paymentRoutes from "./routes/payment.routes.js";
 import contactRoutes from "./routes/contact.routes.js";
+import authRoutes from "./routes/auth.routes.js";
 
 // Connect to the database
 connectDB();
@@ -100,6 +101,9 @@ app.use("/api/payments", paymentRoutes);
 
 // Mount the contact routes under the /api prefix
 app.use("/api", contactRoutes);
+
+// Mount the auth routes under the /api/auth prefix
+app.use("/api/auth", authRoutes);
 
 // --- Global Error Handler ---
 
