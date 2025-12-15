@@ -1,6 +1,8 @@
 import { useState } from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import backgroundIMG from "../assets/voiture.webp";
+import { useAuth } from "../auth/AuthContext";
 
 const ConnexionSection = styled.section`
     display: flex;
@@ -145,6 +147,8 @@ export default function Connexion() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const navigate = useNavigate();
+    const { login } = useAuth();
 
     const apiBase = import.meta.env.VITE_API_URL
         ? `${import.meta.env.VITE_API_URL}/api/auth`
@@ -201,10 +205,15 @@ export default function Connexion() {
                 );
             }
 
-            setSuccess(result.message || (isLogin ? "Connexion réussie." : "Inscription réussie."));
+            setSuccess(
+                result.message || (isLogin ? "Connexion réussie." : "Inscription réussie.")
+            );
 
             if (isLogin) {
-                // TODO: stocker les infos user / token quand tu mettras en place la session
+                if (result.user) {
+                    login(result.user);
+                }
+                navigate("/");
             } else {
                 // Après inscription, basculer en mode login
                 setMode("login");

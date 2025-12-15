@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { NavLink as RouterNavLink } from "react-router-dom";
 import { FaBars } from "react-icons/fa6";
 import { RxCross2 } from "react-icons/rx";
+import { useAuth } from "../auth/AuthContext";
 
 const HeaderContainer = styled.header`
     position: sticky;
@@ -26,9 +27,9 @@ const Logo = styled.img`
 
 const Nav = styled.nav`
     display: flex;
-    gap: 100px;
-
-    padding: 10px 100px;
+    align-items: center;
+    gap: 40px;
+    padding: 10px 40px;
     border-radius: 5px;
     @media (max-width: 768px) {
         display: none;
@@ -82,10 +83,61 @@ const CrossIcon = styled(RxCross2)`
     font-size: 32px;
 `;
 
+const UserBadge = styled.button`
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
+    border: none;
+    background: #ffffff;
+    color: ${theme.colors.background};
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+`;
+
+const UserMenu = styled.div`
+    position: absolute;
+    top: 56px;
+    right: 10px;
+    background: #ffffff;
+    color: #111827;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    padding: 0.5rem 0;
+    z-index: 1100;
+`;
+
+const UserMenuItem = styled.button`
+    width: 100%;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: none;
+    text-align: left;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: inherit;
+
+    &:hover {
+        background: #f3f4f6;
+    }
+`;
+
 function Header() {
     const [isOpen, setIsOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const { user, logout } = useAuth();
     const handleClick = () => {
         setIsOpen(!isOpen);
+    };
+
+    const initial = user?.firstName?.charAt(0) || user?.lastName?.charAt(0) || user?.email.charAt(0) || "U";
+
+    const handleLogout = () => {
+        logout();
+        setIsUserMenuOpen(false);
     };
 
     return (
@@ -97,7 +149,24 @@ function Header() {
             <Nav>
                 <StyledNavLink to="/contact">Contact</StyledNavLink>
                 <StyledNavLink to="/services">Services</StyledNavLink>
-                <StyledNavLink to="/connexion">Connexion</StyledNavLink>
+                {!user && <StyledNavLink to="/connexion">Connexion</StyledNavLink>}
+                {user && (
+                    <div style={{ position: "relative" }}>
+                        <UserBadge
+                            type="button"
+                            onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                        >
+                            {initial.toUpperCase()}
+                        </UserBadge>
+                        {isUserMenuOpen && (
+                            <UserMenu>
+                                <UserMenuItem type="button" onClick={handleLogout}>
+                                    Déconnexion
+                                </UserMenuItem>
+                            </UserMenu>
+                        )}
+                    </div>
+                )}
             </Nav>
             <MenuIcon onClick={handleClick} />
             {isOpen && (
@@ -109,9 +178,11 @@ function Header() {
                     <StyledNavLink to="/services" onClick={handleClick}>
                         Services
                     </StyledNavLink>
-                    <StyledNavLink to="/connexion" onClick={handleClick}>
-                        Connexion
-                    </StyledNavLink>
+                    {!user && (
+                        <StyledNavLink to="/connexion" onClick={handleClick}>
+                            Connexion
+                        </StyledNavLink>
+                    )}
                 </MobileMenu>
             )}
         </HeaderContainer>
