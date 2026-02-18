@@ -12,6 +12,13 @@ import {
     FaCheckCircle,
 } from "react-icons/fa";
 
+/**
+ * Page de saisie des coordonnées utilisateur (contact + optionnellement facturation)
+ * et choix de la méthode de paiement.
+ *
+ * À la validation, redirige vers `/user-payment` en passant les informations
+ * nécessaires via `location.state`.
+ */
 export default function UserContact() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -45,16 +52,26 @@ export default function UserContact() {
         window.scrollTo(0, 0);
     }, []);
 
+    /**
+     * Met à jour les champs de contact (prénom/nom/email/téléphone).
+     */
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setContactInfo((prev) => ({ ...prev, [name]: value }));
     };
 
+    /**
+     * Met à jour les champs de facturation.
+     */
     const handleBillingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setBillingAddress((prev) => ({ ...prev, [name]: value }));
     };
 
+    /**
+     * Soumission du formulaire de coordonnées.
+     * Construit l'objet à transmettre à l'étape de paiement et redirige.
+     */
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // Logique de soumission finale
@@ -410,6 +427,9 @@ const PaymentIconWrapper = styled.div`
     }
 `;
 
+/**
+ * Composant représentant une coche de validation.
+ */
 const CheckMark = () => (
     <div style={{ marginTop: "10px" }}>
         <FaCheckCircle size={24} color={theme.colors.primary} />

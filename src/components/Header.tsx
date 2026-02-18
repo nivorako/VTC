@@ -125,16 +125,29 @@ const UserMenuItem = styled.button`
     }
 `;
 
+/**
+ * Header principal de l'application.
+ *
+ * - Affiche la navigation (desktop + menu mobile)
+ * - Affiche un badge utilisateur si connecté et permet la déconnexion
+ */
 function Header() {
     const [isOpen, setIsOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const { user, logout } = useAuth();
+
+    /**
+     * Toggle du menu mobile.
+     */
     const handleClick = () => {
         setIsOpen(!isOpen);
     };
 
     const initial = user?.firstName?.charAt(0) || user?.lastName?.charAt(0) || user?.email.charAt(0) || "U";
 
+    /**
+     * Déconnecte l'utilisateur et ferme le menu utilisateur.
+     */
     const handleLogout = () => {
         logout();
         setIsUserMenuOpen(false);

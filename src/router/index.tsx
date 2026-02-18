@@ -11,6 +11,11 @@ import UserContact from "../pages/UserContact";
 import UserPayment from "../pages/UserPayment";
 import ScrollToTop from "../components/ScrollToTop";
 
+/**
+ * Routeur principal de l'application (React Router v6 - data router).
+ *
+ * Le layout racine inclut `ScrollToTop` + `MainLayout`, puis rend les pages en enfants.
+ */
 export const router = createBrowserRouter([
     {
         element: (

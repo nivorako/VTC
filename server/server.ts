@@ -13,6 +13,14 @@ const envPathFromServer = path.resolve(__dirname, "..", "..", "server", ".env");
 const envPathFromCwd = path.resolve(process.cwd(), ".env");
 const envPathFromDist = path.resolve(__dirname, "..", ".env");
 
+/**
+ * Chemin du fichier `.env` à charger.
+ *
+ * Stratégie:
+ * - Priorité à `server/.env` (utile en dev / Render)
+ * - Sinon `.env` à la racine
+ * - Sinon `dist/.env` (si build déployé avec env à côté)
+ */
 let envPath: string;
 if (fs.existsSync(envPathFromServer)) {
     envPath = envPathFromServer; // server/.env (prioritaire)
@@ -58,6 +66,12 @@ const allowedOrigins = [
     /^https:\/\/.*\.vercel\.com$/, // Vercel custom domains
 ];
 
+/**
+ * Filtre CORS.
+ *
+ * Autorise les origins explicitement listées + certains patterns (localhost, vercel).
+ * Permet aussi les clients sans `Origin` (ex: Postman).
+ */
 const corsOptions: cors.CorsOptions = {
     origin(origin, callback) {
         // allow non-browser tools with no origin (e.g., Postman)
@@ -84,7 +98,10 @@ app.use(express.json());
 
 // --- API Routes ---
 
-// Root route to confirm API is working
+/**
+ * Endpoint de santé (health check) simple.
+ * Permet de valider que l'API répond et d'indiquer les endpoints principaux.
+ */
 app.get("/", (req, res) => {
     res.json({
         message: "VTC API Server is running",
@@ -112,6 +129,9 @@ app.use(errorHandler);
 
 // --- Start Server ---
 
+/**
+ * Démarre le serveur HTTP Express.
+ */
 app.listen(port, () => {
     console.log(`Serveur démarré sur le port ${port}`);
 });

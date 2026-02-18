@@ -136,6 +136,12 @@ const SuccessMessage = styled.p`
 
 type Mode = "login" | "register";
 
+/**
+ * Page de connexion / inscription.
+ *
+ * Utilise l'API `/api/auth` (ou `${VITE_API_URL}/api/auth`) puis met à jour le
+ * contexte d'authentification via `AuthProvider`.
+ */
 export default function Connexion() {
     const [mode, setMode] = useState<Mode>("login");
     const [email, setEmail] = useState("");
@@ -156,6 +162,9 @@ export default function Connexion() {
 
     const isLogin = mode === "login";
 
+    /**
+     * Soumet le formulaire (connexion ou inscription) et gère l'état UI.
+     */
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setError("");

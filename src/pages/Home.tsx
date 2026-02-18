@@ -65,10 +65,19 @@ const services = [
     },
 ];
 
+/**
+ * Page d'accueil.
+ *
+ * Présente le hero, les services et une section d'avis clients avec affichage
+ * conditionnel de témoignages supplémentaires.
+ */
 const Home = () => {
     const [showMoreTestimonials, setShowMoreTestimonials] =
         React.useState(false);
 
+    /**
+     * Affiche/masque les témoignages supplémentaires.
+     */
     const toggleTestimonials = () => {
         setShowMoreTestimonials(!showMoreTestimonials);
     };

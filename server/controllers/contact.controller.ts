@@ -11,7 +11,10 @@ interface ContactRequestBody {
 }
 
 /**
- * @desc    Send an email from the contact form
+ * Envoie un email à partir du formulaire de contact.
+ * Cette fonction traite les requêtes POST envoyées à l'adresse /api/contact.
+ * Elle est accessible publiquement.
+ *
  * @route   POST /api/contact
  * @access  Public
  */

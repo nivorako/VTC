@@ -1,8 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
 
 /**
- * Global error handling middleware.
- * It logs the error and sends a generic 500 internal server error response.
+ * Middleware global de gestion des erreurs.
+ * 
+ * Journalise l'erreur et renvoie une réponse JSON 500 générique.
  */
 export const errorHandler = (
     err: Error,

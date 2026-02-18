@@ -76,12 +76,18 @@ const paymentSchema = new Schema<IPayment>({
 });
 
 // Middleware pour mettre à jour le champ updatedAt avant chaque sauvegarde
+/**
+ * Met à jour `updatedAt` avant chaque sauvegarde Mongoose.
+ */
 paymentSchema.pre("save", function (next: () => void) {
     (this as IPayment).updatedAt = new Date();
     next();
 });
 
 // Création et export du modèle
+/**
+ * Modèle Mongoose pour les paiements Stripe.
+ */
 const Payment = mongoose.model<IPayment>("Payment", paymentSchema);
 
 export default Payment;

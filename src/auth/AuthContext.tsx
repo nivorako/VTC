@@ -20,6 +20,14 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
+/**
+ * Provider d'authentification.
+ *
+ * Responsabilités:
+ * - Stocker l'utilisateur courant en mémoire (state React)
+ * - Persister l'utilisateur dans `localStorage` (si disponible)
+ * - Exposer `login` / `logout` via un context React
+ */
 export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<AuthUser | null>(() => {
         if (typeof window === "undefined") return null;
@@ -31,6 +39,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     });
 
+    /**
+     * Connecte l'utilisateur côté client et persiste l'état dans `localStorage`.
+     */
     const login = (newUser: AuthUser) => {
         setUser(newUser);
         try {
@@ -40,6 +51,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     };
 
+    /**
+     * Déconnecte l'utilisateur côté client et nettoie `localStorage`.
+     */
     const logout = () => {
         setUser(null);
         try {
@@ -65,6 +79,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     );
 }
 
+/**
+ * Hook pour accéder au context d'authentification.
+ *
+ * @throws {Error} si utilisé en dehors de `AuthProvider`.
+ */
 export function useAuth(): AuthContextValue {
     const context = useContext(AuthContext);
     if (!context) {

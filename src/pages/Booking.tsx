@@ -8,6 +8,12 @@ import type { BookingInfo } from "../types/booking";
 import { useNavigate } from "react-router-dom";
 import useDebounce from "../hooks/useDebounce";
 
+/**
+ * Page de réservation.
+ *
+ * Affiche le formulaire `BookingForm` et active le bouton "Consulter les prix"
+ * uniquement lorsque les champs requis sont renseignés.
+ */
 const Booking = () => {
     // État pour les valeurs brutes du formulaire, mises à jour immédiatement
     const [rawFormValues, setRawFormValues] = useState<
@@ -35,6 +41,12 @@ const Booking = () => {
         vehicule: null,
     });
 
+    /**
+     * Callback appelé par `BookingForm` à chaque changement de valeurs.
+     *
+     * On stocke d'abord dans un état "brut", puis on laisse `useDebounce` lisser
+     * les mises à jour de `formValues`.
+     */
     const handleFormChange = (values: Omit<BookingInfo, "vehicule">) => {
         setRawFormValues(values); // Mettre à jour l'état brut immédiatement
     };

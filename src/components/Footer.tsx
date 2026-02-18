@@ -2,6 +2,10 @@
 import styled from "styled-components";
 import { theme } from "../styles/theme";
 
+/**
+ * Footer de l'application.
+ * Affiche l'année courante et un texte de droits réservés.
+ */
 const Footer = () => {
     return (
         <FooterContainer>

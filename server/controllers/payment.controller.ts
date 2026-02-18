@@ -15,7 +15,8 @@ interface CreatePaymentIntentRequest {
 // Controller Functions
 
 /**
- * @desc    Create a new payment intent
+ * Crée une nouvelle intention de paiement Stripe.
+ *
  * @route   POST /create-payment-intent
  * @access  Public
  */
@@ -103,7 +104,8 @@ export const createPaymentIntent = async (req: Request, res: Response) => {
 };
 
 /**
- * @desc    Get payment status by ID
+ * Récupère le statut d'une intention de paiement Stripe par ID.
+ *
  * @route   GET /payment-status/:id
  * @access  Public
  */
@@ -129,7 +131,8 @@ export const getPaymentStatus = async (req: Request, res: Response) => {
 };
 
 /**
- * @desc    Handle Stripe webhook events
+ * Traite les événements webhook envoyés par Stripe.
+ *
  * @route   POST /webhook
  * @access  Public
  */

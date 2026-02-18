@@ -26,6 +26,10 @@ const ServicesSection = styled.section`
     }
 `;
 
+/**
+ * Page Services.
+ * Actuellement une page placeholder "en cours de travail".
+ */
 export default function Services() {
     return (
         <ServicesSection>

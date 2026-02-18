@@ -87,11 +87,16 @@ const PaymentForm = () => {
 
     const { totalPrice, rideId, userId } = locationState;
 
-    // Fonction pour vérifier le statut du paiement
+    /**
+     * Vérifie le statut du paiement (polling) à partir d'un `paymentIntentId`.
+     * Met à jour l'UI jusqu'à obtention d'un statut final.
+     */
     const checkPaymentStatus = async (paymentIntentId: string) => {
         try {
             // Utiliser le proxy configuré dans vite.config.ts
-            const apiUrl = `${import.meta.env.VITE_API_URL}/api/payments/payment-status/${paymentIntentId}`;
+            const apiUrl = import.meta.env.VITE_API_URL
+                ? `${import.meta.env.VITE_API_URL}/api/payments/payment-status/${paymentIntentId}`
+                : `/api/payments/payment-status/${paymentIntentId}`;
 
             const response = await fetch(apiUrl);
 
@@ -125,14 +130,18 @@ const PaymentForm = () => {
         }
     };
 
-    // Fonction pour annuler le paiement
+    /**
+     * Annule le flux de paiement côté UI.
+     */
     const handleCancel = () => {
         setCancelled(true);
         setError(null);
         setLoading(false);
     };
 
-    // Fonction pour revenir à la page précédente
+    /**
+     * Revient à la page précédente.
+     */
     const handleBack = () => {
         navigate(-1);
     };
@@ -161,7 +170,9 @@ const PaymentForm = () => {
         try {
             // 1. Créer une intention de paiement côté serveur
             // Utiliser le proxy configuré dans vite.config.ts
-            const apiUrl = `${import.meta.env.VITE_API_URL}/api/payments/create-payment-intent`;
+            const apiUrl = import.meta.env.VITE_API_URL
+                ? `${import.meta.env.VITE_API_URL}/api/payments/create-payment-intent`
+                : "/api/payments/create-payment-intent";
 
             console.log("Envoi de la requête à:", apiUrl);
 
@@ -424,6 +435,9 @@ const PaymentForm = () => {
     );
 };
 
+/**
+ * Page de paiement : enveloppe Stripe `<Elements>` autour du formulaire de paiement.
+ */
 const UserPayment = () => {
     return (
         <Container>

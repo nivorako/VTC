@@ -134,7 +134,12 @@ const ErrorText = styled.div`
     margin-top: 0.25rem;
 `;
 
-// Component for Google Places Autocomplete integrated with Formik
+/**
+ * Champ Autocomplete (Google Places) intégré à Formik.
+ *
+ * Met à jour la valeur Formik du champ `name` lorsque l'utilisateur sélectionne
+ * une adresse via Google Places.
+ */
 const PlacesAutocompleteField: React.FC<{
     name: string;
     placeholder?: string;
@@ -144,10 +149,18 @@ const PlacesAutocompleteField: React.FC<{
     const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
     const { setFieldValue } = useFormikContext();
 
+    /**
+     * Callback appelé par le composant `<Autocomplete>` lorsque l'instance Google
+     * Autocomplete est prête.
+     */
     const onLoad = (autocomplete: google.maps.places.Autocomplete) => {
         autocompleteRef.current = autocomplete;
     };
 
+    /**
+     * Callback appelé lorsque l'utilisateur change de place (sélection d'une adresse).
+     * Si une adresse formatée est disponible, elle est poussée dans Formik.
+     */
     const onPlaceChanged = () => {
         if (autocompleteRef.current) {
             const place = autocompleteRef.current.getPlace();
@@ -178,7 +191,11 @@ const PlacesAutocompleteField: React.FC<{
     );
 };
 
-// Helper component to observe Formik's values and sync them with the parent state
+/**
+ * Observe les valeurs Formik et les synchronise avec l'état parent.
+ *
+ * Ce composant ne rend rien (pattern "observer").
+ */
 const FormikObserver: React.FC<{
     setFormValues: (values: FormikValues) => void;
 }> = ({ setFormValues }) => {
@@ -194,6 +211,13 @@ type BookingFormProps = {
     onFormChange: (values: FormikValues) => void;
 };
 
+/**
+ * Formulaire de réservation (Formik) utilisé pour saisir les informations de trajet.
+ *
+ * Particularités:
+ * - Utilise Google Places pour les champs `depart` et `arrivee`
+ * - Ne soumet pas de formulaire (onSubmit vide), le parent récupère les valeurs via `onFormChange`
+ */
 const BookingForm: React.FC<BookingFormProps> = ({ onFormChange }) => {
     const { isLoaded } = useJsApiLoader({
         id: "google-map-script",
@@ -201,12 +225,17 @@ const BookingForm: React.FC<BookingFormProps> = ({ onFormChange }) => {
         libraries: libraries,
     });
 
-    // Obtenir la date et l'heure actuelles
+    /**
+     * Retourne la date du jour au format ISO court (YYYY-MM-DD) pour initialiser le champ date.
+     */
     const getTodayDate = () => {
         const today = new Date();
         return today.toISOString().split('T')[0];
     };
 
+    /**
+     * Retourne l'heure courante au format HH:MM pour initialiser le champ heure.
+     */
     const getCurrentTime = () => {
         const now = new Date();
         return now.toTimeString().slice(0, 5);

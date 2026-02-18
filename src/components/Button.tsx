@@ -29,6 +29,9 @@ interface ButtonProps {
     $variant?: never; // Empêche l'utilisation directe de ces props
 }
 
+/**
+ * Retourne les styles CSS (string) associés à une variante de bouton.
+ */
 const getVariantStyles = (variant: ButtonVariant) => {
     switch (variant) {
         case "secondary":
@@ -70,6 +73,9 @@ const getVariantStyles = (variant: ButtonVariant) => {
     }
 };
 
+/**
+ * Retourne les styles CSS (string) associés à une taille de bouton.
+ */
 const getSizeStyles = (size: ButtonSize) => {
     switch (size) {
         case "small":
@@ -81,6 +87,7 @@ const getSizeStyles = (size: ButtonSize) => {
             return "padding: 0.75rem 1.5rem;";
     }
 };
+
 const ButtonBase = styled.button<ButtonBaseProps>`
     display: inline-flex;
     align-items: center;
@@ -143,6 +150,13 @@ const StyledLink = styled(Link).withConfig({
     }
 `;
 
+/**
+ * Composant bouton générique.
+ *
+ * - Si `to` est fourni, rend un lien React Router stylé.
+ * - Sinon, rend un `<button>`.
+ * - Gère l'état `disabled` de manière homogène.
+ */
 export const Button = React.forwardRef<
     HTMLButtonElement | HTMLAnchorElement,
     ButtonProps

@@ -8,6 +8,10 @@ const MainContent = styled.main`
     z-index: 1;
 `;
 
+/**
+ * Layout principal.
+ * Encapsule le header/footer et rend le contenu de la route via `<Outlet>`.
+ */
 const MainLayout = () => {
     const location = useLocation(); // Obtenir l'objet location
     return (

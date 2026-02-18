@@ -17,6 +17,12 @@ interface LoginRequestBody {
 
 const SALT_ROUNDS = 10;
 
+/**
+ * Inscription d'un utilisateur (provider local).
+ *
+ * Valide les champs requis, vérifie l'unicité de l'email, hash le mot de passe,
+ * puis renvoie un objet utilisateur "safe" (sans hash).
+ */
 export const register = async (req: Request, res: Response) => {
     try {
         const { email, password, firstName, lastName, phone } =
@@ -61,6 +67,12 @@ export const register = async (req: Request, res: Response) => {
     }
 };
 
+/**
+ * Connexion d'un utilisateur (provider local).
+ *
+ * Vérifie la présence des identifiants, la correspondance de l'utilisateur,
+ * et compare le mot de passe avec le hash stocké.
+ */
 export const login = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body as LoginRequestBody;

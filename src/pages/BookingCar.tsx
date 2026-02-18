@@ -12,13 +12,11 @@ import berlineLuxImg from "../assets/berlineLUX.webp";
 import vanImg from "../assets/van.webp";
 
 /**
- * Component for booking a car.
- * The component displays a form with options for date, time, departure and arrival,
- * type of trip and vehicle type.
- * The component also displays the total price.
- * The user can select a car and the component will update the form with the selected car type.
- * The component also displays a button to go to the previous page and a button to go to the next page.
- * The user can also go back to the previous page by clicking on the link.
+ * Page de choix du véhicule.
+ *
+ * Affiche le récapitulatif de la réservation, la carte/itinéraire, puis permet à
+ * l'utilisateur de sélectionner un type de véhicule. Le prix total est recalculé
+ * en fonction de la distance et du véhicule.
  */
 export default function BookingCar() {
     const location = useLocation();
@@ -35,7 +33,9 @@ export default function BookingCar() {
     });
     const [totalPrice, setTotalPrice] = useState<number>(0);
 
-    // Fonction pour calculer le prix en fonction du véhicule
+    /**
+     * Calcule le prix total en fonction du type de véhicule sélectionné et de la distance.
+     */
     const calculatePrice = useCallback((vehicleType: string): number => {
         // Prix par type de véhicule (alignés avec BookingCarDetails)
         const vehiclePrices: { [key: string]: number } = {
@@ -68,8 +68,7 @@ export default function BookingCar() {
     }, [location.state]);
 
     /**
-     * Sets the selected car and updates the form values with the selected car type.
-     * @param {string} carType The type of car to select.
+     * Sélectionne un véhicule et met à jour l'état de réservation.
      */
     const handleSelectCar = (carType: string) => {
         setSelectedCar(carType);
@@ -81,10 +80,17 @@ export default function BookingCar() {
         setTotalPrice(calculatePrice(carType));
     };
 
+    /**
+     * Callback appelé par `BookingCarDetails` lorsque le prix est calculé côté composant.
+     */
     const handlePriceCalculated = (price: number) => {
         setTotalPrice(price);
     };
 
+    /**
+     * Callback appelé par `MapWithRoute` lorsque l'itinéraire est calculé.
+     * Permet de synchroniser la distance pour le calcul du prix.
+     */
     const handleRouteCalculated = (routeData: {
         distance: string;
         duration: string;
@@ -102,6 +108,9 @@ export default function BookingCar() {
         }
     }, [distance, selectedCar, calculatePrice]);
 
+    /**
+     * Retourne un libellé utilisateur pour un type de véhicule.
+     */
     const getVehicleName = (carType: string): string => {
         const vehicleNames: { [key: string]: string } = {
             berline: "Berline",
