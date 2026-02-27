@@ -297,7 +297,15 @@ export default function UserContact() {
                                     )}
                                 </PaymentIconWrapper>
                             </PaymentIconsContainer>
+
+                            <PaymentDisclaimer>
+                                Nous ne stockons jamais vos informations de carte.
+                            </PaymentDisclaimer>
                         </PaymentMethodContainer>
+
+                        <LoginAlert>
+                            Connexion requise pour confirmer la réservation
+                        </LoginAlert>
 
                         <Button
                             onClick={handleSubmit}
@@ -342,9 +350,6 @@ const Container = styled.div`
 
 const BookingCarDetailsContainer = styled.div`
     width: 30%;
-    display: flex;
-    flex-direction: column;
-
     & > div {
         height: 100%; // Assure que BookingCarDetails prend toute la hauteur
     }
@@ -379,6 +384,24 @@ const Form = styled.form`
     flex-direction: column;
     gap: 1.5rem;
     height: 100%;
+`;
+
+const LoginAlert = styled.div`
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: #fff7ed;
+    color: ${theme.colors.text};
+    font-weight: 600;
+    text-align: center;
+`;
+
+const PaymentDisclaimer = styled.div`
+    width: 100%;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.65);
 `;
 
 const InputGroup = styled.div`

@@ -53,6 +53,14 @@ export default function BookingCar() {
         return 0;
     }, [distance]);
 
+    const calculateVat = useCallback((price: number): number => {
+        return price * 0.1;
+    }, []);
+
+    const calculatePriceTtc = useCallback((price: number): number => {
+        return price + calculateVat(price);
+    }, [calculateVat]);
+
     useEffect(() => {
         if (location.state) {
             const { bookingDetails, distance } = location.state as {
@@ -77,14 +85,14 @@ export default function BookingCar() {
             vehicule: carType,
         }));
         // Mettre à jour le prix total avec le prix du véhicule sélectionné
-        setTotalPrice(calculatePrice(carType));
+        setTotalPrice(calculatePriceTtc(calculatePrice(carType)));
     };
 
     /**
      * Callback appelé par `BookingCarDetails` lorsque le prix est calculé côté composant.
      */
     const handlePriceCalculated = (price: number) => {
-        setTotalPrice(price);
+        setTotalPrice(calculatePriceTtc(price));
     };
 
     /**
@@ -104,9 +112,9 @@ export default function BookingCar() {
     // Recalculer le prix lorsque la distance change et qu'un véhicule est sélectionné
     useEffect(() => {
         if (selectedCar && distance) {
-            setTotalPrice(calculatePrice(selectedCar));
+            setTotalPrice(calculatePriceTtc(calculatePrice(selectedCar)));
         }
-    }, [distance, selectedCar, calculatePrice]);
+    }, [distance, selectedCar, calculatePrice, calculatePriceTtc]);
 
     /**
      * Retourne un libellé utilisateur pour un type de véhicule.
@@ -151,14 +159,39 @@ export default function BookingCar() {
                             </CheckIcon>
                         )}
                         <CarImage src={berlineImg} alt="berline" />
-                        <CarInfos>
-                            <CarTitle>Berline</CarTitle>
-                            <CarDescription>vehicule hybride, bas carbonne</CarDescription>
-                        </CarInfos>
-                        <CarPriceInfo>
-                            <TripType>{formValues.typeTrajet === "aller-retour" ? "Aller et retour" : "Aller simple"}</TripType>
-                            <FinalPrice>{calculatePrice("berline") > 0 ? `${calculatePrice("berline").toFixed(2)} €` : "- €"}</FinalPrice>
-                        </CarPriceInfo>
+                        <CarBottomRow>
+                            <CarInfos>
+                                <CarTitle>Berline</CarTitle>
+                                <CarDescription>vehicule hybride, bas carbonne</CarDescription>
+                            </CarInfos>
+                            <CarPriceInfo>
+                                <TripType>{formValues.typeTrajet === "aller-retour" ? "Aller et retour" : "Aller simple"}</TripType>
+                                <PriceRow>
+                                    <PriceLabel>Prix HT :</PriceLabel>
+                                    <PriceValue>
+                                        {calculatePrice("berline") > 0
+                                            ? `${calculatePrice("berline").toFixed(2)} €`
+                                            : "- €"}
+                                    </PriceValue>
+                                </PriceRow>
+                                <PriceRow>
+                                    <PriceLabel>TVA (10%) :</PriceLabel>
+                                    <PriceValue>
+                                        {calculatePrice("berline") > 0
+                                            ? `${calculateVat(calculatePrice("berline")).toFixed(2)} €`
+                                            : "- €"}
+                                    </PriceValue>
+                                </PriceRow>
+                                <PriceRow>
+                                    <PriceLabel>Total prix TTC :</PriceLabel>
+                                    <FinalPrice>
+                                        {calculatePrice("berline") > 0
+                                            ? `${calculatePriceTtc(calculatePrice("berline")).toFixed(2)} €`
+                                            : "- €"}
+                                    </FinalPrice>
+                                </PriceRow>
+                            </CarPriceInfo>
+                        </CarBottomRow>
                     </Car>
                     <Car
                         onClick={() => handleSelectCar("berlineLux")}
@@ -170,14 +203,39 @@ export default function BookingCar() {
                             </CheckIcon>
                         )}
                         <CarImage src={berlineLuxImg} alt="berlineLux" />
-                        <CarInfos>
-                            <CarTitle>Berline de luxe</CarTitle>
-                            <CarDescription>vehicule haut de gamme ( Mercedes, BMW, Audi ...)</CarDescription>
-                        </CarInfos>
-                        <CarPriceInfo>
-                            <TripType>{formValues.typeTrajet === "aller-retour" ? "Aller et retour" : "Aller simple"}</TripType>
-                            <FinalPrice>{calculatePrice("berlineLux") > 0 ? `${calculatePrice("berlineLux").toFixed(2)} €` : "- €"}</FinalPrice>
-                        </CarPriceInfo>
+                        <CarBottomRow>
+                            <CarInfos>
+                                <CarTitle>Berline de luxe</CarTitle>
+                                <CarDescription>vehicule haut de gamme ( Mercedes, BMW, Audi ...)</CarDescription>
+                            </CarInfos>
+                            <CarPriceInfo>
+                                <TripType>{formValues.typeTrajet === "aller-retour" ? "Aller et retour" : "Aller simple"}</TripType>
+                                <PriceRow>
+                                    <PriceLabel>Prix HT :</PriceLabel>
+                                    <PriceValue>
+                                        {calculatePrice("berlineLux") > 0
+                                            ? `${calculatePrice("berlineLux").toFixed(2)} €`
+                                            : "- €"}
+                                    </PriceValue>
+                                </PriceRow>
+                                <PriceRow>
+                                    <PriceLabel>TVA (10%) :</PriceLabel>
+                                    <PriceValue>
+                                        {calculatePrice("berlineLux") > 0
+                                            ? `${calculateVat(calculatePrice("berlineLux")).toFixed(2)} €`
+                                            : "- €"}
+                                    </PriceValue>
+                                </PriceRow>
+                                <PriceRow>
+                                    <PriceLabel>Total prix TTC :</PriceLabel>
+                                    <FinalPrice>
+                                        {calculatePrice("berlineLux") > 0
+                                            ? `${calculatePriceTtc(calculatePrice("berlineLux")).toFixed(2)} €`
+                                            : "- €"}
+                                    </FinalPrice>
+                                </PriceRow>
+                            </CarPriceInfo>
+                        </CarBottomRow>
                     </Car>
                     <Car
                         onClick={() => handleSelectCar("van")}
@@ -189,14 +247,39 @@ export default function BookingCar() {
                             </CheckIcon>
                         )}
                         <CarImage src={vanImg} alt="van" />
-                        <CarInfos>
-                            <CarTitle>Van</CarTitle>
-                            <CarDescription>idéal pour les voyages en famille</CarDescription>
-                        </CarInfos>
-                        <CarPriceInfo>
-                            <TripType>{formValues.typeTrajet === "aller-retour" ? "Aller et retour" : "Aller simple"}</TripType>
-                            <FinalPrice>{calculatePrice("van") > 0 ? `${calculatePrice("van").toFixed(2)} €` : "- €"}</FinalPrice>
-                        </CarPriceInfo>
+                        <CarBottomRow>
+                            <CarInfos>
+                                <CarTitle>Van</CarTitle>
+                                <CarDescription>idéal pour les voyages en famille</CarDescription>
+                            </CarInfos>
+                            <CarPriceInfo>
+                                <TripType>{formValues.typeTrajet === "aller-retour" ? "Aller et retour" : "Aller simple"}</TripType>
+                                <PriceRow>
+                                    <PriceLabel>Prix HT :</PriceLabel>
+                                    <PriceValue>
+                                        {calculatePrice("van") > 0
+                                            ? `${calculatePrice("van").toFixed(2)} €`
+                                            : "- €"}
+                                    </PriceValue>
+                                </PriceRow>
+                                <PriceRow>
+                                    <PriceLabel>TVA (10%) :</PriceLabel>
+                                    <PriceValue>
+                                        {calculatePrice("van") > 0
+                                            ? `${calculateVat(calculatePrice("van")).toFixed(2)} €`
+                                            : "- €"}
+                                    </PriceValue>
+                                </PriceRow>
+                                <PriceRow>
+                                    <PriceLabel>Total prix TTC :</PriceLabel>
+                                    <FinalPrice>
+                                        {calculatePrice("van") > 0
+                                            ? `${calculatePriceTtc(calculatePrice("van")).toFixed(2)} €`
+                                            : "- €"}
+                                    </FinalPrice>
+                                </PriceRow>
+                            </CarPriceInfo>
+                        </CarBottomRow>
                     </Car>
                 </CarChoices>
             </BookingCarContainer>
@@ -228,6 +311,29 @@ const StyledH1 = styled.h1`
         margin-top: 100px; /* Ajustement pour les très petits écrans */
         font-size: 1.5rem; /* Ajustement de la taille pour mobile */
     }
+`;
+
+const PriceRow = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+`;
+
+const PriceLabel = styled.div`
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: ${theme.colors.text};
+    text-align: left;
+`;
+
+const PriceValue = styled.div`
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: ${theme.colors.primary};
+    text-align: right;
 `;
 
 const Section = styled.section`
@@ -408,6 +514,23 @@ const Car = styled.div<{ $isSelected: boolean }>`
 
     @media (max-width: 768px) {
         min-height: 120px;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+`;
+
+const CarBottomRow = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 0.75rem;
+
+    @media (max-width: 425px) {
+        flex-direction: column;
     }
 `;
 
@@ -427,19 +550,23 @@ const CheckIcon = styled.div`
 `;
 
 const CarImage = styled.img`
-    width: 30%;
+    width: 33%;
     height: 30%;
     object-fit: contain;
     @media (max-width: 1024px) {
-        width: 20%;
+        
     }
     @media (max-width: 768px) {
-        width: 20%;
+        width: 50%;
+        align-self: center;
+        margin: 0 auto;
+        height: auto;
+        max-height: 150px;
     }
 `;
 
 const CarInfos = styled.div`
-    width: 45%;
+    width: 33%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -449,6 +576,11 @@ const CarInfos = styled.div`
     
     @media (max-width: 768px) {
         width: 50%;
+        padding: 0.25rem;
+    }
+
+    @media (max-width: 425px) {
+        width: 100%;
     }
 `;
 
@@ -475,7 +607,7 @@ const CarDescription = styled.p`
 `;
 
 const CarPriceInfo = styled.div`
-    width: 25%;
+    width: 33%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -485,8 +617,13 @@ const CarPriceInfo = styled.div`
     border-left: 1px solid #e0e0e0;
     
     @media (max-width: 768px) {
-        width: 30%;
+        width: 50%;
         padding: 0.25rem;
+        border-left: none;
+    }
+
+    @media (max-width: 425px) {
+        width: 100%;
     }
 `;
 

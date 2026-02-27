@@ -46,6 +46,30 @@ const DetailLabel = styled.span`
     margin-right: 1rem;
 `;
 
+const PriceSummary = styled.div`
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+`;
+
+const PriceLine = styled.div`
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+`;
+
+const PriceLabel = styled.span`
+    font-weight: 600;
+`;
+
+const PriceValue = styled.span`
+    font-weight: 700;
+    color: ${theme.colors.primary};
+`;
+
 const ModifyButton = styled.button`
     position: absolute;
     bottom: 1rem;
@@ -76,6 +100,9 @@ const ModifyButton = styled.button`
     @media (max-width: 768px) {
         font-size: 0.8rem;
         padding: 0.4rem 0.8rem;
+        position: static;
+        margin-top: 1rem;
+        align-self: flex-end;
     }
 `;
 
@@ -92,6 +119,7 @@ const BookingCarDetails: React.FC<BookingCarDetailsProps> = ({
     bookingInfo,
     distance,
     onPriceCalculated,
+    totalPrice: totalPriceTtc,
 }) => {
     const navigate = useNavigate();
     // Extraire la distance en chiffres
@@ -129,6 +157,10 @@ const BookingCarDetails: React.FC<BookingCarDetailsProps> = ({
         }
     }, [totalPrice, onPriceCalculated]);
 
+    const hasTotalPriceTtc = typeof totalPriceTtc === "number" && totalPriceTtc > 0;
+    const priceHt = hasTotalPriceTtc ? totalPriceTtc / 1.1 : 0;
+    const vat = hasTotalPriceTtc ? totalPriceTtc - priceHt : 0;
+
     return (
         <DetailsWrapper>
             <h2>Détails de la Réservation</h2>
@@ -158,6 +190,23 @@ const BookingCarDetails: React.FC<BookingCarDetailsProps> = ({
                     <DetailLabel>Distance parcourue:</DetailLabel>
                     {distance || "N/A"}
                 </DetailItem>
+
+                {hasTotalPriceTtc && (
+                    <PriceSummary>
+                        <PriceLine>
+                            <PriceLabel>Prix HT :</PriceLabel>
+                            <PriceValue>{priceHt.toFixed(2)} €</PriceValue>
+                        </PriceLine>
+                        <PriceLine>
+                            <PriceLabel>TVA (10%) :</PriceLabel>
+                            <PriceValue>{vat.toFixed(2)} €</PriceValue>
+                        </PriceLine>
+                        <PriceLine>
+                            <PriceLabel>Total prix :</PriceLabel>
+                            <PriceValue>{totalPriceTtc.toFixed(2)} €</PriceValue>
+                        </PriceLine>
+                    </PriceSummary>
+                )}
             </DetailsSection>
             
             <ModifyButton onClick={() => navigate("/booking", { state: { bookingDetails: bookingInfo, distance } })}>
