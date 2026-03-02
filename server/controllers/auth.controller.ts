@@ -17,6 +17,10 @@ interface LoginRequestBody {
 
 const SALT_ROUNDS = 10;
 
+interface EmailExistsQuery {
+    email?: string;
+}
+
 /**
  * Inscription d'un utilisateur (provider local).
  *
@@ -64,6 +68,22 @@ export const register = async (req: Request, res: Response) => {
         return res.status(500).json({
             message: "Une erreur est survenue lors de l'inscription.",
         });
+    }
+};
+
+export const emailExists = async (req: Request, res: Response) => {
+    try {
+        const { email } = req.query as EmailExistsQuery;
+
+        if (!email || typeof email !== "string") {
+            return res.status(400).json({ message: "Email est obligatoire." });
+        }
+
+        const user = await User.findOne({ email: email.toLowerCase() }).select("_id");
+        return res.status(200).json({ exists: Boolean(user) });
+    } catch (error) {
+        console.error("Erreur lors de la vérification d'email:", error);
+        return res.status(500).json({ message: "Une erreur est survenue." });
     }
 };
 

@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Check } from "lucide-react";
+import { Check, Eye, EyeOff } from "lucide-react";
 import { theme } from "../styles/theme";
 import BookingCarDetails from "../components/BookingCarDetails";
 import MapWithRoute from "../components/MapWithRoute";
 import type { BookingInfo } from "../types/booking";
+import { useAuth } from "../auth/AuthContext";
 
 import berlineImg from "../assets/berline.webp";
 import berlineLuxImg from "../assets/berlineLUX.webp";
@@ -21,6 +22,7 @@ import vanImg from "../assets/van.webp";
 export default function BookingCar() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { user, login } = useAuth();
     const [selectedCar, setSelectedCar] = useState<string | null>(null);
     const [distance, setDistance] = useState("");
     const [formValues, setFormValues] = useState<BookingInfo>({
@@ -32,6 +34,40 @@ export default function BookingCar() {
         vehicule: null,
     });
     const [totalPrice, setTotalPrice] = useState<number>(0);
+
+    type AuthMode = "login" | "register";
+
+    // Nouveau flow (Mars 2026):
+    // Au clic sur "continuer" (FixedBottomBar), si l'utilisateur n'est pas connecté:
+    // 1) modal email (champ unique)
+    // 2) vérification /api/auth/email-exists
+    // 3) modal connexion si email existe, sinon modal inscription
+    // 4) si succès, on remplit AuthContext puis on redirige vers /user-contact
+
+    const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+    const [authEmail, setAuthEmail] = useState("");
+    const [emailLoading, setEmailLoading] = useState(false);
+    const [emailError, setEmailError] = useState("");
+
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [authMode, setAuthMode] = useState<AuthMode>("login");
+    const [authPassword, setAuthPassword] = useState("");
+    const [showAuthPassword, setShowAuthPassword] = useState(false);
+    const [authFirstName, setAuthFirstName] = useState("");
+    const [authLastName, setAuthLastName] = useState("");
+    const [authPhone, setAuthPhone] = useState("");
+    const [authLoading, setAuthLoading] = useState(false);
+    const [authError, setAuthError] = useState("");
+
+    // Résolution du backend d'auth:
+    // - Si VITE_API_URL est défini: on cible un backend externe (Render, etc.)
+    // - Sinon en DEV: fallback sur le serveur Express local (4001)
+    // - Sinon (prod): /api/auth (utile si déployé en serverless sur Vercel)
+    const apiBase = import.meta.env.VITE_API_URL
+        ? `${import.meta.env.VITE_API_URL}/api/auth`
+        : import.meta.env.DEV
+          ? "http://localhost:4001/api/auth"
+          : "/api/auth";
 
     /**
      * Calcule le prix total en fonction du type de véhicule sélectionné et de la distance.
@@ -126,6 +162,173 @@ export default function BookingCar() {
             van: "Van",
         };
         return vehicleNames[carType] || carType;
+    };
+
+    const proceedToUserContact = () => {
+        navigate("/user-contact", {
+            state: { bookingDetails: formValues, distance, totalPrice },
+        });
+    };
+
+    const resetAuthFlowState = () => {
+        // Nettoyage des états UI/erreurs de modals avant de démarrer un nouveau flow.
+        setEmailLoading(false);
+        setEmailError("");
+        setAuthLoading(false);
+        setAuthError("");
+        setAuthPassword("");
+        setAuthFirstName("");
+        setAuthLastName("");
+        setAuthPhone("");
+    };
+
+    const closeEmailModal = () => {
+        setIsEmailModalOpen(false);
+        setEmailLoading(false);
+        setEmailError("");
+    };
+
+    const closeAuthModal = () => {
+        setIsAuthModalOpen(false);
+        setAuthLoading(false);
+        setAuthError("");
+        setAuthPassword("");
+        setShowAuthPassword(false);
+    };
+
+    const handleContinueClick = () => {
+        if (!selectedCar) return;
+
+        // Si l'utilisateur est déjà connecté, on saute toute l'auth.
+        if (user) {
+            proceedToUserContact();
+            return;
+        }
+
+        // Sinon: démarrage du flow par modal email.
+        resetAuthFlowState();
+        setIsEmailModalOpen(true);
+    };
+
+    const handleEmailSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+        setEmailError("");
+
+        const email = authEmail.trim();
+        if (!email) {
+            setEmailError("Email est obligatoire.");
+            return;
+        }
+
+        setEmailLoading(true);
+
+        try {
+            // Vérifie si l'email existe déjà en base pour décider login/register.
+            const response = await fetch(
+                `${apiBase}/email-exists?email=${encodeURIComponent(email)}`,
+                {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                }
+            );
+
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error(
+                    `Erreur serveur: ${response.status} ${response.statusText}`
+                );
+            }
+
+            const result = (await response.json()) as {
+                exists?: boolean;
+                message?: string;
+            };
+            if (!response.ok) {
+                throw new Error(
+                    result.message || "Erreur lors de la vérification d'email."
+                );
+            }
+
+            setAuthMode(result.exists ? "login" : "register");
+            setIsEmailModalOpen(false);
+            setIsAuthModalOpen(true);
+        } catch (err) {
+            setEmailError(
+                err instanceof Error
+                    ? err.message
+                    : "Une erreur inconnue est survenue."
+            );
+        } finally {
+            setEmailLoading(false);
+        }
+    };
+
+    const handleAuthSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+        setAuthError("");
+
+        const email = authEmail.trim();
+        if (!email || !authPassword) {
+            setAuthError("Email et mot de passe sont obligatoires.");
+            return;
+        }
+
+        setAuthLoading(true);
+
+        try {
+            // Soumission login/register. Si succès, on met à jour AuthContext et on redirige.
+            const endpoint = authMode === "login" ? "login" : "register";
+            const response = await fetch(`${apiBase}/${endpoint}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(
+                    authMode === "login"
+                        ? { email, password: authPassword }
+                        : {
+                              email,
+                              password: authPassword,
+                              firstName: authFirstName,
+                              lastName: authLastName,
+                              phone: authPhone,
+                          }
+                ),
+            });
+
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error(
+                    `Erreur serveur: ${response.status} ${response.statusText}`
+                );
+            }
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    result.message ||
+                        (authMode === "login"
+                            ? "Erreur lors de la connexion."
+                            : "Erreur lors de l'inscription.")
+                );
+            }
+
+            if (result.user) {
+                login(result.user);
+            }
+
+            closeAuthModal();
+            proceedToUserContact();
+        } catch (err) {
+            setAuthError(
+                err instanceof Error
+                    ? err.message
+                    : "Une erreur inconnue est survenue."
+            );
+        } finally {
+            setAuthLoading(false);
+        }
     };
 
     return (
@@ -286,16 +489,179 @@ export default function BookingCar() {
             {selectedCar && (
                 <FixedBottomBar>
                     <VehicleInfo>
-                        {getVehicleName(selectedCar)} sélectionné
+                        {getVehicleName(selectedCar)} : {totalPrice.toFixed(2)}€
                     </VehicleInfo>
                     <ValidateButton
-                        onClick={() => navigate("/user-contact", {
-                            state: { bookingDetails: formValues, distance, totalPrice }
-                        })}
+                        onClick={handleContinueClick}
                     >
-                        Valider ({totalPrice.toFixed(2)}€)
+                        continuer 
                     </ValidateButton>
                 </FixedBottomBar>
+            )}
+
+            {isEmailModalOpen && (
+                <ModalOverlay
+                    role="dialog"
+                    aria-modal="true"
+                    onMouseDown={(e) => {
+                        if (e.target === e.currentTarget) closeEmailModal();
+                    }}
+                >
+                    <ModalCard>
+                        <ModalHeader>
+                            <ModalTitle>Email</ModalTitle>
+                            <ModalCloseButton type="button" onClick={closeEmailModal}>
+                                ×
+                            </ModalCloseButton>
+                        </ModalHeader>
+
+                        <ModalForm onSubmit={handleEmailSubmit}>
+                            <InputGroup>
+                                <Label htmlFor="authEmail">Email</Label>
+                                <Input
+                                    id="authEmail"
+                                    type="email"
+                                    value={authEmail}
+                                    onChange={(e) => setAuthEmail(e.target.value)}
+                                    required
+                                />
+                            </InputGroup>
+
+                            {emailError && <ModalError>{emailError}</ModalError>}
+
+                            <ModalPrimaryButton type="submit" disabled={emailLoading}>
+                                {emailLoading ? "Vérification..." : "Continuer"}
+                            </ModalPrimaryButton>
+                        </ModalForm>
+                    </ModalCard>
+                </ModalOverlay>
+            )}
+
+            {isAuthModalOpen && (
+                <ModalOverlay
+                    role="dialog"
+                    aria-modal="true"
+                    onMouseDown={(e) => {
+                        if (e.target === e.currentTarget) closeAuthModal();
+                    }}
+                >
+                    <ModalCard>
+                        <ModalHeader>
+                            <ModalTitle>
+                                {authMode === "login" ? "Connexion" : "Inscription"}
+                            </ModalTitle>
+                            <ModalCloseButton type="button" onClick={closeAuthModal}>
+                                ×
+                            </ModalCloseButton>
+                        </ModalHeader>
+
+                        <ModalForm onSubmit={handleAuthSubmit}>
+                            <InputGroup>
+                                <Label htmlFor="authEmailReadonly">Email</Label>
+                                <Input
+                                    id="authEmailReadonly"
+                                    type="email"
+                                    value={authEmail}
+                                    readOnly
+                                    required
+                                />
+                            </InputGroup>
+
+                            <InputGroup>
+                                <Label htmlFor="authPassword">Mot de passe</Label>
+                                <PasswordInputWrapper>
+                                    <Input
+                                        id="authPassword"
+                                        type={showAuthPassword ? "text" : "password"}
+                                        value={authPassword}
+                                        onChange={(e) => setAuthPassword(e.target.value)}
+                                        required
+                                    />
+                                    <PasswordIconButton
+                                        type="button"
+                                        aria-label={
+                                            showAuthPassword
+                                                ? "Masquer le mot de passe"
+                                                : "Afficher le mot de passe"
+                                        }
+                                        onClick={() =>
+                                            setShowAuthPassword((prev) => !prev)
+                                        }
+                                    >
+                                        {showAuthPassword ? (
+                                            <EyeOff size={20} />
+                                        ) : (
+                                            <Eye size={20} />
+                                        )}
+                                    </PasswordIconButton>
+                                </PasswordInputWrapper>
+                            </InputGroup>
+
+                            {authMode === "register" && (
+                                <>
+                                    <InputGroup>
+                                        <Label htmlFor="authFirstName">Prénom</Label>
+                                        <Input
+                                            id="authFirstName"
+                                            type="text"
+                                            value={authFirstName}
+                                            onChange={(e) =>
+                                                setAuthFirstName(e.target.value)
+                                            }
+                                        />
+                                    </InputGroup>
+                                    <InputGroup>
+                                        <Label htmlFor="authLastName">Nom</Label>
+                                        <Input
+                                            id="authLastName"
+                                            type="text"
+                                            value={authLastName}
+                                            onChange={(e) =>
+                                                setAuthLastName(e.target.value)
+                                            }
+                                        />
+                                    </InputGroup>
+                                    <InputGroup>
+                                        <Label htmlFor="authPhone">Téléphone</Label>
+                                        <Input
+                                            id="authPhone"
+                                            type="tel"
+                                            value={authPhone}
+                                            onChange={(e) => setAuthPhone(e.target.value)}
+                                        />
+                                    </InputGroup>
+                                </>
+                            )}
+
+                            {authError && <ModalError>{authError}</ModalError>}
+
+                            <ModalPrimaryButton type="submit" disabled={authLoading}>
+                                {authLoading
+                                    ? authMode === "login"
+                                        ? "Connexion en cours..."
+                                        : "Inscription en cours..."
+                                    : authMode === "login"
+                                      ? "Me connecter"
+                                      : "M'inscrire"}
+                            </ModalPrimaryButton>
+
+                            <ModalSwitchButton
+                                type="button"
+                                onClick={() => {
+                                    setAuthMode((prev) =>
+                                        prev === "login" ? "register" : "login"
+                                    );
+                                    setAuthError("");
+                                }}
+                                disabled={authLoading}
+                            >
+                                {authMode === "login"
+                                    ? "Créer un compte"
+                                    : "J'ai déjà un compte"}
+                            </ModalSwitchButton>
+                        </ModalForm>
+                    </ModalCard>
+                </ModalOverlay>
             )}
         </Section>
     );
@@ -311,6 +677,156 @@ const StyledH1 = styled.h1`
         margin-top: 100px; /* Ajustement pour les très petits écrans */
         font-size: 1.5rem; /* Ajustement de la taille pour mobile */
     }
+`;
+
+const ModalOverlay = styled.div`
+    position: fixed;
+    inset: 0;
+    top: 70px;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 2000;
+`;
+
+const ModalCard = styled.div`
+    width: 100%;
+    max-width: 520px;
+    background: #ffffff;
+    color: #111827;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    padding: 1.25rem;
+    box-sizing: border-box;
+`;
+
+const ModalHeader = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+`;
+
+const ModalTitle = styled.h2`
+    margin: 0;
+    font-size: 1.25rem;
+    color: ${theme.colors.text};
+`;
+
+const ModalCloseButton = styled.button`
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`;
+
+const ModalForm = styled.form`
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+`;
+
+const ModalError = styled.div`
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: #991b1b;
+    font-weight: 600;
+`;
+
+const ModalPrimaryButton = styled.button`
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border-radius: 8px;
+    border: none;
+    background: ${theme.colors.background};
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+
+    &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+`;
+
+const ModalSwitchButton = styled.button`
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: transparent;
+    color: ${theme.colors.text};
+    font-weight: 700;
+    cursor: pointer;
+
+    &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+`;
+
+const InputGroup = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+`;
+
+const Label = styled.label`
+    font-weight: bold;
+    color: ${theme.colors.text};
+`;
+
+const Input = styled.input`
+    padding: 0.75rem;
+    border: 1px solid ${theme.colors.text};
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+
+    &:focus {
+        outline: none;
+        border-color: ${theme.colors.primary};
+    }
+`;
+
+const PasswordInputWrapper = styled.div`
+    position: relative;
+    width: 100%;
+
+    & > input {
+        width: 100%;
+        padding-right: 3.25rem;
+    }
+`;
+
+const PasswordIconButton = styled.button`
+    position: absolute;
+    right: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: #ffffff;
+    cursor: pointer;
+    color: ${theme.colors.text};
 `;
 
 const PriceRow = styled.div`

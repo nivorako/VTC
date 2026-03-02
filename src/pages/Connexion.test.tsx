@@ -1,10 +1,24 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import Connexion from "./Connexion";
+import { AuthProvider } from "../auth/AuthContext";
 
 describe("Connexion", () => {
     const user = userEvent.setup();
+
+    const renderConnexion = () => {
+        // Connexion utilise useNavigate (react-router) et useAuth (context).
+        // En test, on doit donc wrapper avec un Router + AuthProvider.
+        return render(
+            <AuthProvider>
+                <MemoryRouter>
+                    <Connexion />
+                </MemoryRouter>
+            </AuthProvider>
+        );
+    };
 
     beforeEach(() => {
         vi.spyOn(global, "fetch").mockResolvedValue({
@@ -40,7 +54,7 @@ describe("Connexion", () => {
     };
 
     it("affiche les champs de base en mode login", () => {
-        render(<Connexion />);
+        renderConnexion();
 
         expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/mot de passe/i)).toBeInTheDocument();
@@ -48,7 +62,7 @@ describe("Connexion", () => {
     });
 
     it("affiche les champs supplémentaires en mode inscription", async () => {
-        render(<Connexion />);
+        renderConnexion();
 
         await user.click(screen.getByRole("button", { name: /s'inscrire/i }));
 
@@ -58,7 +72,7 @@ describe("Connexion", () => {
     });
 
     it("affiche une erreur si email ou mot de passe sont manquants", async () => {
-        render(<Connexion />);
+        renderConnexion();
 
         await user.click(screen.getByRole("button", { name: /me connecter/i }));
 
@@ -68,7 +82,7 @@ describe("Connexion", () => {
     });
 
     it("envoie une requête de connexion valide et affiche un message de succès", async () => {
-        render(<Connexion />);
+        renderConnexion();
 
         await fillLoginFields();
         await user.click(screen.getByRole("button", { name: /me connecter/i }));
@@ -93,7 +107,7 @@ describe("Connexion", () => {
             json: async () => ({ message: "Erreur lors de la connexion." }),
         } as unknown as Response);
 
-        render(<Connexion />);
+        renderConnexion();
 
         await fillLoginFields();
         await user.click(screen.getByRole("button", { name: /me connecter/i }));
@@ -104,7 +118,7 @@ describe("Connexion", () => {
     });
 
     it("valide les champs requis en mode inscription", async () => {
-        render(<Connexion />);
+        renderConnexion();
 
         await switchToRegister();
 
@@ -128,7 +142,7 @@ describe("Connexion", () => {
             json: async () => ({ message: "Inscription réussie." }),
         } as unknown as Response);
 
-        render(<Connexion />);
+        renderConnexion();
 
         await switchToRegister();
         await fillRegisterFields();
@@ -156,7 +170,7 @@ describe("Connexion", () => {
             },
         } as unknown as Response);
 
-        render(<Connexion />);
+        renderConnexion();
 
         await fillLoginFields();
         await user.click(screen.getByRole("button", { name: /me connecter/i }));
@@ -167,7 +181,7 @@ describe("Connexion", () => {
     });
 
     it("permet d'afficher/masquer le mot de passe", async () => {
-        render(<Connexion />);
+        renderConnexion();
 
         const passwordInput = screen.getByLabelText(/mot de passe/i) as HTMLInputElement;
         const toggleButton = screen.getByRole("button", { name: /afficher/i });
@@ -188,7 +202,7 @@ describe("Connexion", () => {
             json: async () => ({ message: "Erreur lors de l'inscription." }),
         } as unknown as Response);
 
-        render(<Connexion />);
+        renderConnexion();
 
         await switchToRegister();
         await fillRegisterFields();
@@ -212,7 +226,7 @@ describe("Connexion", () => {
             },
         } as unknown as Response);
 
-        render(<Connexion />);
+        renderConnexion();
 
         await switchToRegister();
         await fillRegisterFields();

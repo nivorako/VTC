@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register, login } from "../controllers/auth.controller.js";
+import { register, login, emailExists } from "../controllers/auth.controller.js";
 
 const router = Router();
 
@@ -7,6 +7,8 @@ const router = Router();
 // @desc    Register a new user with email & password
 // @access  Public
 router.post("/register", register);
+
+router.get("/email-exists", emailExists);
 
 // @route   POST /api/auth/login
 // @desc    Login with email & password

@@ -5,6 +5,7 @@ import BookingCarDetails from "../components/BookingCarDetails";
 import { Button } from "../components/Button";
 import { theme } from "../styles/theme";
 import type { BookingInfo } from "../types/booking";
+import { useAuth } from "../auth/AuthContext";
 import {
     FaCcMastercard,
     FaCcVisa,
@@ -22,6 +23,7 @@ import {
 export default function UserContact() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { user, login } = useAuth();
     const { bookingDetails, distance, totalPrice } = location.state as {
         bookingDetails: BookingInfo;
         distance: string;
@@ -48,9 +50,24 @@ export default function UserContact() {
         country: "",
     });
 
+    type AuthMode = "login" | "register";
+
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [authMode, setAuthMode] = useState<AuthMode>("login");
+    const [authPassword, setAuthPassword] = useState("");
+    const [authFirstName, setAuthFirstName] = useState("");
+    const [authLastName, setAuthLastName] = useState("");
+    const [authPhone, setAuthPhone] = useState("");
+    const [authLoading, setAuthLoading] = useState(false);
+    const [authError, setAuthError] = useState("");
+
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
+
+    const apiBase = import.meta.env.VITE_API_URL
+        ? `${import.meta.env.VITE_API_URL}/api/auth`
+        : "/api/auth";
 
     /**
      * Met à jour les champs de contact (prénom/nom/email/téléphone).
@@ -72,16 +89,7 @@ export default function UserContact() {
      * Soumission du formulaire de coordonnées.
      * Construit l'objet à transmettre à l'étape de paiement et redirige.
      */
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Logique de soumission finale
-        const submissionData = {
-            bookingDetails,
-            contactInfo,
-            paymentMethod: selectedPaymentMethod,
-            ...(showBillingAddress && { billingAddress }),
-        };
-        console.log("Booking confirmed:", submissionData);
+    const proceedToPayment = () => {
         navigate("/user-payment", {
             state: {
                 bookingDetails,
@@ -91,6 +99,132 @@ export default function UserContact() {
                 totalPrice,
             },
         }); // Redirige vers la page UserPayment
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (user) {
+            proceedToPayment();
+            return;
+        }
+
+        setAuthError("");
+
+        try {
+            const email = contactInfo.email?.trim();
+            if (!email) {
+                setAuthError("Email est obligatoire.");
+                setAuthMode("register");
+                setIsAuthModalOpen(true);
+                return;
+            }
+
+            const response = await fetch(
+                `${apiBase}/email-exists?email=${encodeURIComponent(email)}`,
+                {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                }
+            );
+
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error(
+                    `Erreur serveur: ${response.status} ${response.statusText}`
+                );
+            }
+
+            const result = (await response.json()) as { exists?: boolean; message?: string };
+            if (!response.ok) {
+                throw new Error(result.message || "Erreur lors de la vérification d'email.");
+            }
+
+            setAuthMode(result.exists ? "login" : "register");
+            setIsAuthModalOpen(true);
+        } catch (err) {
+            setAuthError(
+                err instanceof Error
+                    ? err.message
+                    : "Une erreur inconnue est survenue."
+            );
+            setAuthMode("register");
+            setIsAuthModalOpen(true);
+        }
+    };
+
+    const closeAuthModal = () => {
+        setIsAuthModalOpen(false);
+        setAuthLoading(false);
+        setAuthError("");
+        setAuthPassword("");
+    };
+
+    const handleAuthSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+        setAuthError("");
+
+        const email = contactInfo.email?.trim();
+        if (!email || !authPassword) {
+            setAuthError("Email et mot de passe sont obligatoires.");
+            return;
+        }
+
+        setAuthLoading(true);
+
+        try {
+            const endpoint = authMode === "login" ? "login" : "register";
+            const response = await fetch(`${apiBase}/${endpoint}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(
+                    authMode === "login"
+                        ? { email, password: authPassword }
+                        : {
+                              email,
+                              password: authPassword,
+                              firstName: authFirstName,
+                              lastName: authLastName,
+                              phone: authPhone,
+                          }
+                ),
+            });
+
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error(
+                    `Erreur serveur: ${response.status} ${response.statusText}`
+                );
+            }
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    result.message ||
+                        (authMode === "login"
+                            ? "Erreur lors de la connexion."
+                            : "Erreur lors de l'inscription.")
+                );
+            }
+
+            if (result.user) {
+                login(result.user);
+            }
+
+            closeAuthModal();
+            proceedToPayment();
+        } catch (err) {
+            setAuthError(
+                err instanceof Error
+                    ? err.message
+                    : "Une erreur inconnue est survenue."
+            );
+        } finally {
+            setAuthLoading(false);
+        }
     };
 
     return (
@@ -308,7 +442,6 @@ export default function UserContact() {
                         </LoginAlert>
 
                         <Button
-                            onClick={handleSubmit}
                             variant="secondary"
                             size="large"
                             type="submit"
@@ -318,6 +451,116 @@ export default function UserContact() {
                     </Form>
                 </ContactFormContainer>
             </Container>
+
+            {isAuthModalOpen && (
+                <ModalOverlay
+                    role="dialog"
+                    aria-modal="true"
+                    onMouseDown={(e) => {
+                        if (e.target === e.currentTarget) closeAuthModal();
+                    }}
+                >
+                    <ModalCard>
+                        <ModalHeader>
+                            <ModalTitle>
+                                {authMode === "login"
+                                    ? "Connexion"
+                                    : "Inscription"}
+                            </ModalTitle>
+                            <ModalCloseButton type="button" onClick={closeAuthModal}>
+                                ×
+                            </ModalCloseButton>
+                        </ModalHeader>
+
+                        <ModalForm onSubmit={handleAuthSubmit}>
+                            <InputGroup>
+                                <Label htmlFor="authEmail">Email</Label>
+                                <Input
+                                    id="authEmail"
+                                    type="email"
+                                    value={contactInfo.email}
+                                    readOnly
+                                    required
+                                />
+                            </InputGroup>
+
+                            <InputGroup>
+                                <Label htmlFor="authPassword">Mot de passe</Label>
+                                <Input
+                                    id="authPassword"
+                                    type="password"
+                                    value={authPassword}
+                                    onChange={(e) => setAuthPassword(e.target.value)}
+                                    required
+                                />
+                            </InputGroup>
+
+                            {authMode === "register" && (
+                                <>
+                                    <InputGroup>
+                                        <Label htmlFor="authFirstName">Prénom</Label>
+                                        <Input
+                                            id="authFirstName"
+                                            type="text"
+                                            value={authFirstName}
+                                            onChange={(e) =>
+                                                setAuthFirstName(e.target.value)
+                                            }
+                                        />
+                                    </InputGroup>
+                                    <InputGroup>
+                                        <Label htmlFor="authLastName">Nom</Label>
+                                        <Input
+                                            id="authLastName"
+                                            type="text"
+                                            value={authLastName}
+                                            onChange={(e) =>
+                                                setAuthLastName(e.target.value)
+                                            }
+                                        />
+                                    </InputGroup>
+                                    <InputGroup>
+                                        <Label htmlFor="authPhone">Téléphone</Label>
+                                        <Input
+                                            id="authPhone"
+                                            type="tel"
+                                            value={authPhone}
+                                            onChange={(e) => setAuthPhone(e.target.value)}
+                                        />
+                                    </InputGroup>
+                                </>
+                            )}
+
+                            {authError && <ModalError>{authError}</ModalError>}
+
+                            <ModalPrimaryButton type="submit" disabled={authLoading}>
+                                {authLoading
+                                    ? authMode === "login"
+                                        ? "Connexion en cours..."
+                                        : "Inscription en cours..."
+                                    : authMode === "login"
+                                      ? "Me connecter"
+                                      : "M'inscrire"}
+                            </ModalPrimaryButton>
+
+                            <ModalSwitchButton
+                                type="button"
+                                onClick={() => {
+                                    setAuthMode((prev) =>
+                                        prev === "login" ? "register" : "login"
+                                    );
+                                    setAuthError("");
+                                }}
+                                disabled={authLoading}
+                            >
+                                {authMode === "login"
+                                    ? "Créer un compte"
+                                    : "J'ai déjà un compte"}
+                            </ModalSwitchButton>
+                        </ModalForm>
+                    </ModalCard>
+                </ModalOverlay>
+            )}
         </Section>
     );
 }
@@ -476,4 +719,102 @@ const BillingFormContainer = styled.div`
     border-top: 1px solid #eee;
     padding-top: 1.5rem;
     margin-top: -0.5rem; /* Compenser le gap du formulaire principal */
+`;
+
+const ModalOverlay = styled.div`
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 2000;
+`;
+
+const ModalCard = styled.div`
+    width: 100%;
+    max-width: 520px;
+    background: #ffffff;
+    color: #111827;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    padding: 1.25rem;
+    box-sizing: border-box;
+`;
+
+const ModalHeader = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+`;
+
+const ModalTitle = styled.h2`
+    margin: 0;
+    font-size: 1.25rem;
+    color: ${theme.colors.text};
+`;
+
+const ModalCloseButton = styled.button`
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`;
+
+const ModalForm = styled.form`
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+`;
+
+const ModalError = styled.div`
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: #991b1b;
+    font-weight: 600;
+`;
+
+const ModalPrimaryButton = styled.button`
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border-radius: 8px;
+    border: none;
+    background: ${theme.colors.background};
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+
+    &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+`;
+
+const ModalSwitchButton = styled.button`
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: transparent;
+    color: ${theme.colors.text};
+    font-weight: 700;
+    cursor: pointer;
+
+    &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
 `;
