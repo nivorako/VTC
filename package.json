@@ -12,7 +12,7 @@
         "lint": "eslint .",
         "preview": "vite preview",
         "render-build": "cd server && npm ci --include=dev && npm run build",
-        "start": "cd server && npm start",
+        "start": "node server/dist/server.js",
         "vercel-build": "tsc -b && vite build",
         "test": "vitest",
         "test:ui": "vitest --ui",
