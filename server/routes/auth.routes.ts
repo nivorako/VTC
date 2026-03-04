@@ -3,6 +3,10 @@ import { register, login, emailExists } from "../controllers/auth.controller.js"
 
 const router = Router();
 
+router.get("/health", (_req, res) => {
+    res.status(200).json({ status: "OK" });
+});
+
 // @route   POST /api/auth/register
 // @desc    Register a new user with email & password
 // @access  Public

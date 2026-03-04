@@ -108,6 +108,7 @@ app.get("/", (req, res) => {
         status: "OK",
         endpoints: {
             contact: "/api/contact",
+            auth: "/api/auth",
             payments: "/api/payments",
         },
     });
